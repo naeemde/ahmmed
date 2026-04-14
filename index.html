@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedLab Pro — نظام المختبر</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#060c18;--s1:#0b1626;--s2:#0f1f38;--s3:#142847;
+  --border:#1a3355;--border2:#22406a;
+  --accent:#00c8f0;--ag:rgba(0,200,240,.12);
+  --green:#00e17a;--gdim:rgba(0,225,122,.11);
+  --red:#ff3d3d;--rdim:rgba(255,61,61,.11);
+  --yellow:#ffcc00;--ydim:rgba(255,204,0,.1);
+  --blue:#4da6ff;--bdim:rgba(77,166,255,.1);
+  --text:#ddeeff;--t2:#7aa8cc;--t3:#3d6a8a;
+  --r:12px;--r2:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);direction:rtl;min-height:100vh;}
+header{background:linear-gradient(135deg,#070e1d,#0c1c35,#060d1a);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:62px;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.6);}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),#005588);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 0 16px rgba(0,200,240,.25);}
+.logo h1{font-size:16px;font-weight:900;color:var(--accent);}
+.logo p{font-size:9px;color:var(--t2);margin-top:1px;}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;}
+.bg{background:rgba(0,225,122,.08);border:1px solid var(--green);color:var(--green);}
+.by{background:rgba(255,204,0,.08);border:1px solid var(--yellow);color:var(--yellow);}
+.dot{width:6px;height:6px;border-radius:50%;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.hbtns{display:flex;gap:7px;}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:7px 14px;border-radius:var(--r2);border:none;font-family:'Cairo',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .18s;}
+.btn-a{background:var(--accent);color:#000;}.btn-a:hover{background:#33d6ff;box-shadow:0 0 14px rgba(0,200,240,.4);}
+.btn-o{background:transparent;color:var(--accent);border:1.5px solid var(--accent);}.btn-o:hover{background:var(--ag);}
+.btn-y{background:rgba(255,204,0,.1);color:var(--yellow);border:1.5px solid var(--yellow);}.btn-y:hover{background:var(--ydim);}
+.btn-r{background:var(--red);color:#fff;}
+.btn-g{background:var(--green);color:#000;}
+.btn-sm{padding:4px 10px;font-size:10px;}
+.app{display:grid;grid-template-columns:256px 1fr;min-height:calc(100vh - 62px);}
+aside{background:var(--s1);border-left:1px solid var(--border);padding:14px 12px;max-height:calc(100vh - 62px);overflow-y:auto;position:sticky;top:62px;}
+.st{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;padding:0 4px 8px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.sb{background:var(--s2);border:1.5px solid var(--border);border-radius:var(--r2);padding:7px 10px;color:var(--text);font-family:'Cairo',sans-serif;font-size:11px;width:100%;outline:none;margin-bottom:8px;transition:border-color .2s;}
+.sb:focus{border-color:var(--accent);}
+.sb::placeholder{color:var(--t3);}
+.pc{font-size:9px;color:var(--t3);text-align:center;padding:3px 0 7px;border-bottom:1px solid var(--border);margin-bottom:7px;}
+.pcard{background:var(--s2);border-radius:var(--r);padding:12px;margin-bottom:8px;border:1px solid var(--border);cursor:pointer;transition:all .18s;position:relative;}
+.pcard:hover{border-color:var(--accent);box-shadow:0 0 10px var(--ag);}
+.pcard.active{border-color:var(--accent);background:var(--s3);}
+.pcard .pn{font-size:12px;font-weight:700;}
+.pcard .pm{font-size:9px;color:var(--t2);margin-top:2px;}
+.pcard .pb{position:absolute;top:7px;left:7px;font-size:8px;font-weight:700;padding:1px 5px;border-radius:20px;background:var(--ag);color:var(--accent);border:1px solid var(--accent);}
+.pgn{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.pgn .pi{font-size:10px;color:var(--t2);}
+.nop{text-align:center;color:var(--t3);padding:30px 8px;font-size:11px;}
+main{padding:20px 24px;overflow-y:auto;}
+.view{display:none;}.view.active{display:block;}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden;}
+.ch{padding:12px 18px;background:var(--s2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.chi{display:flex;align-items:center;gap:10px;}
+.chic{width:32px;height:32px;background:var(--ag);border:1px solid var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ch h3{font-size:13px;font-weight:700;}
+.ch p{font-size:9px;color:var(--t2);margin-top:1px;}
+.cb{padding:18px;}
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+.s2{grid-column:span 2;}
+.fl{display:flex;flex-direction:column;gap:4px;}
+.fl label{font-size:9px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.7px;}
+.fl input,.fl select,.fl textarea{background:var(--s2);border:1.5px solid var(--border);border-radius:var(--r2);padding:8px 11px;color:var(--text);font-family:'Cairo',sans-serif;font-size:12px;transition:all .18s;outline:none;direction:rtl;}
+.fl input:focus,.fl select:focus,.fl textarea:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--ag);background:var(--s3);}
+.fl input::placeholder{color:var(--t3);}
+.fl select option{background:var(--s2);}
+.fl textarea{resize:vertical;min-height:58px;}
+.div{height:1px;background:var(--border);margin:14px 0;}
+/* ── TESTS SECTION ── */
+.tests-section{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;}
+.search-add{display:flex;gap:8px;align-items:center;padding:14px 18px;background:var(--s2);border-bottom:1px solid var(--border);position:relative;z-index:10;}
+.search-wrap{position:relative;flex:1;}
+.search-icon{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--t3);pointer-events:none;}
+#testSearch{width:100%;background:var(--s1);border:1.5px solid var(--border2);border-radius:var(--r2);padding:9px 36px 9px 12px;color:var(--text);font-family:'Cairo',sans-serif;font-size:12px;outline:none;transition:all .2s;}
+#testSearch:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--ag);background:var(--s3);}
+#testSearch::placeholder{color:var(--t3);}
+.autocomplete{position:absolute;top:calc(100% + 4px);right:0;left:0;background:var(--s2);border:1.5px solid var(--accent);border-radius:var(--r2);z-index:500;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.6);}
+.ac-item{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;cursor:pointer;transition:background .12s;font-size:11px;border-bottom:1px solid rgba(26,51,85,.4);}
+.ac-item:last-child{border-bottom:none;}
+.ac-item:hover,.ac-item:focus{background:var(--s3);outline:none;}
+.ac-name{font-weight:700;color:var(--text);}
+.ac-ar{font-size:10px;color:var(--t2);margin-top:1px;}
+.ac-cat{font-size:9px;color:var(--t3);background:var(--s3);border-radius:4px;padding:1px 6px;}
+.ac-add{font-size:10px;color:var(--accent);font-weight:700;opacity:0;transition:opacity .12s;}
+.ac-item:hover .ac-add{opacity:1;}
+.no-results{padding:14px;text-align:center;color:var(--t3);font-size:11px;}
+.tests-table-wrap{overflow-x:auto;}
+.tests-table{width:100%;border-collapse:collapse;min-width:700px;}
+.tests-table thead tr{background:var(--s3);}
+.tests-table th{padding:8px 10px;text-align:right;font-size:9px;font-weight:700;color:var(--t2);letter-spacing:.5px;border-bottom:2px solid var(--border2);white-space:nowrap;}
+.tests-table th.tc{text-align:center;}
+.tests-table td{padding:5px 6px;border-bottom:1px solid rgba(26,51,85,.4);vertical-align:middle;}
+.tests-table tbody tr{transition:background .3s;}
+.tests-table tbody tr:hover{background:rgba(0,200,240,.02);}
+.trn{font-size:11px;font-weight:700;color:var(--text);}
+.trar{font-size:9px;color:var(--t2);margin-top:1px;}
+.ti{background:var(--s2);border:1.5px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:12px;font-weight:700;text-align:center;outline:none;transition:all .18s;}
+.ti:focus{border-color:var(--accent);background:var(--s3);}
+.ti.wv{width:88px;}.ti.wr{width:68px;}.ti.wu{width:70px;}.ti.wp{width:76px;}
+.ti.h{border-color:var(--red)!important;background:var(--rdim)!important;color:var(--red)!important;}
+.ti.l{border-color:var(--blue)!important;background:var(--bdim)!important;color:var(--blue)!important;}
+.ti.n{border-color:var(--green)!important;background:var(--gdim)!important;color:var(--green)!important;}
+.flag{display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;min-width:54px;white-space:nowrap;}
+.fh{background:var(--rdim);color:var(--red);border:1px solid var(--red);}
+.fl2{background:var(--bdim);color:var(--blue);border:1px solid var(--blue);}
+.fn{background:var(--gdim);color:var(--green);border:1px solid var(--green);}
+.fe{background:transparent;color:transparent;border:1px solid var(--border);}
+.del-btn{width:26px;height:26px;border-radius:6px;border:none;background:var(--rdim);color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s;flex-shrink:0;}
+.del-btn:hover{background:var(--red);color:#fff;}
+.empty-tests{padding:48px 20px;text-align:center;color:var(--t3);}
+.empty-tests .ei{font-size:44px;margin-bottom:12px;}
+.empty-tests p{font-size:12px;}
+
+/* ── PRICE FOOTER ── */
+.price-footer{padding:14px 18px;background:var(--s2);border-top:2px solid var(--border2);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.pf-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.pf-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t2);}
+.pf-val{font-size:15px;font-weight:900;color:var(--accent);}
+.pf-div{width:1px;height:26px;background:var(--border2);}
+.pf-disc{background:var(--s1);border:1.5px solid var(--border2);border-radius:6px;padding:5px 8px;color:var(--yellow);font-family:'Tajawal',sans-serif;font-size:12px;font-weight:700;width:72px;text-align:center;outline:none;transition:border-color .2s;}
+.pf-disc:focus{border-color:var(--yellow);}
+/* Total box — editable */
+.total-box{display:flex;align-items:center;gap:8px;background:var(--gdim);border:1.5px solid var(--green);border-radius:var(--r2);padding:7px 14px;transition:border-color .2s;}
+.total-box.locked{border-color:var(--yellow);background:var(--ydim);}
+.total-label{font-size:10px;color:var(--t2);font-weight:700;white-space:nowrap;}
+.total-input{background:transparent;border:none;outline:none;font-family:'Tajawal',sans-serif;font-size:20px;font-weight:900;color:var(--green);width:90px;text-align:center;direction:ltr;}
+.total-box.locked .total-input{color:var(--yellow);}
+.total-sar{font-size:11px;color:var(--t2);font-weight:700;}
+.total-reset{background:none;border:none;cursor:pointer;font-size:12px;color:var(--t2);transition:color .15s;padding:2px 4px;border-radius:4px;}
+.total-reset:hover{color:var(--accent);}
+.total-lock-icon{font-size:11px;color:var(--yellow);}
+
+/* Mini stats */
+.mini-stats{display:flex;gap:8px;margin-bottom:14px;}
+.ms{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:8px 14px;text-align:center;flex:1;transition:border-color .3s;}
+.ms.gn{border-color:var(--green);}.ms.rd{border-color:var(--red);}.ms.bl{border-color:var(--blue);}.ms.ac{border-color:var(--accent);}
+.ms-v{font-size:20px;font-weight:900;}
+.ms.gn .ms-v{color:var(--green);}.ms.rd .ms-v{color:var(--red);}.ms.bl .ms-v{color:var(--blue);}.ms.ac .ms-v{color:var(--accent);}
+.ms-l{font-size:9px;color:var(--t2);font-weight:700;margin-top:1px;}
+.calc-panel{background:linear-gradient(135deg,rgba(0,200,240,.05),rgba(0,120,180,.04));border:1px solid rgba(0,200,240,.22);border-radius:var(--r);padding:14px 18px;margin-bottom:14px;}
+.calc-panel h4{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:12px;}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;}
+.ci{background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:10px 13px;}
+.ci .cil{font-size:9px;color:var(--t2);font-weight:700;letter-spacing:.4px;}
+.ci .civ{font-size:18px;font-weight:900;color:var(--accent);margin:3px 0 1px;}
+.ci .ciu{font-size:9px;color:var(--t3);}
+/* ── PROFIT DASHBOARD ── */
+.profit-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.profit-header h2{font-size:18px;font-weight:900;color:var(--text);}
+.profit-header h2 span{color:var(--green);}
+/* Filter bar */
+.filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--s2);border:1px solid var(--border2);border-radius:var(--r2);padding:10px 14px;margin-bottom:18px;}
+.filter-bar label{font-size:10px;color:var(--t2);font-weight:700;white-space:nowrap;}
+.filter-bar input[type=date]{background:var(--s1);border:1.5px solid var(--border2);border-radius:6px;padding:5px 10px;color:var(--text);font-family:'Cairo',sans-serif;font-size:11px;outline:none;transition:border-color .2s;}
+.filter-bar input[type=date]:focus{border-color:var(--accent);}
+.filter-tabs{display:flex;gap:4px;}
+.ftab{padding:5px 12px;border-radius:6px;border:1.5px solid var(--border2);background:transparent;color:var(--t2);font-family:'Cairo',sans-serif;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s;}
+.ftab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.ftab:hover:not(.active){border-color:var(--accent);color:var(--accent);}
+/* KPI grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.kpi{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px 14px;text-align:center;transition:transform .18s,box-shadow .18s;position:relative;overflow:hidden;}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.kpi::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;border-radius:var(--r) var(--r) 0 0;}
+.kpi.gr::before{background:var(--green);}.kpi.ac::before{background:var(--accent);}
+.kpi.yl::before{background:var(--yellow);}.kpi.bl::before{background:var(--blue);}
+.kpi.gr{border-color:var(--green);}.kpi.ac{border-color:var(--accent);}
+.kpi.yl{border-color:var(--yellow);}.kpi.bl{border-color:var(--blue);}
+.kpi-icon{font-size:22px;margin-bottom:8px;}
+.kpi-val{font-size:22px;font-weight:900;line-height:1.1;}
+.kpi-sar{font-size:11px;font-weight:700;opacity:.7;margin-right:2px;}
+.kpi.gr .kpi-val{color:var(--green);}.kpi.ac .kpi-val{color:var(--accent);}
+.kpi.yl .kpi-val{color:var(--yellow);}.kpi.bl .kpi-val{color:var(--blue);}
+.kpi-label{font-size:9px;color:var(--t2);margin-top:5px;font-weight:700;letter-spacing:.4px;}
+.kpi-sub{font-size:9px;color:var(--t3);margin-top:2px;}
+/* Charts */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+/* Revenue table */
+.rev-table{width:100%;border-collapse:collapse;}
+.rev-table th{padding:8px 12px;text-align:right;font-size:9px;font-weight:700;color:var(--t2);letter-spacing:.4px;border-bottom:2px solid var(--border2);background:var(--s3);}
+.rev-table td{padding:7px 12px;border-bottom:1px solid rgba(26,51,85,.4);font-size:11px;vertical-align:middle;}
+.rev-table tbody tr:hover{background:rgba(0,200,240,.03);}
+.rev-table .amount{font-weight:900;color:var(--green);text-align:center;}
+.rev-table .count{color:var(--t2);text-align:center;font-size:10px;}
+.rev-table .pname{font-weight:700;}
+.rev-table .pdate{font-size:9px;color:var(--t3);}
+.no-data{text-align:center;color:var(--t3);padding:32px;font-size:12px;}
+/* loading spinner */
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+/* Modal */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(4px);}
+.mo.open{display:flex;}
+.mbox{background:var(--s1);border:1px solid var(--border2);border-radius:16px;padding:24px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+.mbox h2{font-size:16px;margin-bottom:7px;}
+.mbox p{color:var(--t2);font-size:11px;margin-bottom:18px;}
+.mactions{display:flex;gap:8px;justify-content:flex-end;}
+.cuf{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.cuf .fl input{font-size:12px;}
+.cuf .full{grid-column:span 2;}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--accent);border-radius:24px;padding:9px 22px;font-size:12px;font-weight:700;color:var(--accent);opacity:0;pointer-events:none;transition:opacity .28s;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.4);}
+#toast.show{opacity:1;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.print-header{display:none;}
+
+@media(max-width:900px){
+  .app{grid-template-columns:1fr;}aside{display:none;}
+  .kpi-grid{grid-template-columns:repeat(3,1fr);}
+  .chart-row{grid-template-columns:1fr;}
+  .mini-stats{flex-wrap:wrap;}
+  .pf-left{gap:8px;}
+}
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  body{background:#fff!important;color:#111!important;}
+  header,aside,.no-print,#toast{display:none!important;}
+  .app{display:block!important;}
+  main{padding:0!important;}
+  #patientView{display:block!important;}
+  .view{display:none!important;}
+  #patientView.view{display:block!important;}
+  .card,.tests-section{box-shadow:none!important;border:1px solid #ccd8e8!important;border-radius:6px!important;margin-bottom:10px!important;}
+  .ch{background:#f0f5fc!important;}.ch h3{color:#0a2040!important;}.ch p{color:#4a7a9b!important;}
+  .fl label{color:#4a7a9b!important;}
+  .fl input,.fl select,.fl textarea{background:#f8fbff!important;border-color:#ccd8e8!important;color:#111!important;}
+  .tests-table th{background:#e8f0f8!important;color:#3a6080!important;font-size:8px!important;}
+  .tests-table td{border-color:#dde8f4!important;}
+  .ti{background:#f8fbff!important;border-color:#ccd8e8!important;color:#111!important;}
+  .ti.h{background:#fff0f0!important;color:#c0392b!important;border-color:#e74c3c!important;}
+  .ti.l{background:#f0f5ff!important;color:#1a6acc!important;border-color:#3498db!important;}
+  .ti.n{background:#f0fff4!important;color:#16a34a!important;border-color:#22c55e!important;}
+  .fh{background:#fff0f0!important;color:#c0392b!important;border-color:#e74c3c!important;}
+  .fl2{background:#f0f5ff!important;color:#1a6acc!important;border-color:#3498db!important;}
+  .fn{background:#f0fff4!important;color:#16a34a!important;border-color:#22c55e!important;}
+  .calc-panel{background:#f0f8ff!important;border-color:#b0d4f0!important;}
+  .ci{background:#fff!important;border-color:#dde8f4!important;}
+  .ci .civ{color:#0a4080!important;}
+  .price-footer{background:#f0f8f4!important;border-top:2px solid #22c55e!important;}
+  .total-box{background:#e8fff4!important;border-color:#22c55e!important;}
+  .total-input{color:#16a34a!important;}
+  .mini-stats{display:none!important;}
+  .print-header{display:block!important;}
+  @page{margin:12mm;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">🔬</div>
+    <div><h1>MedLab Pro</h1><p>نظام إدارة المختبر الطبي المتكامل</p></div>
+  </div>
+  <div style="display:flex;gap:7px;align-items:center;" class="no-print">
+    <span class="badge by" id="dbBadge"><div class="dot" style="background:var(--yellow)"></div>IndexedDB</span>
+    <span class="badge bg"><div class="dot" style="background:var(--green)"></div>WASM نشط</span>
+  </div>
+  <div class="hbtns no-print">
+    <button class="btn btn-y" onclick="showStatsView()">📊 الإحصائيات</button>
+    <button class="btn btn-o" onclick="openPrintModal()">🖨️ طباعة</button>
+    <button class="btn btn-a" onclick="showNewPatient()">➕ مريض جديد</button>
+  </div>
+</header>
+
+<div class="app">
+<aside class="no-print">
+  <div class="st">قائمة المرضى</div>
+  <input type="text" id="searchInput" class="sb" placeholder="🔍 بحث بالاسم أو رقم الملف..." oninput="onSearch(this.value)">
+  <div id="patientCount" class="pc">جارٍ التحميل...</div>
+  <div id="patientList"><div class="nop">جارٍ تحميل البيانات...</div></div>
+</aside>
+
+<main>
+  <!-- DASH -->
+  <div id="dashView" class="view active">
+    <div style="text-align:center;padding:70px 0;color:var(--t3);">
+      <div style="font-size:52px;margin-bottom:14px;">🧬</div>
+      <h2 style="font-size:19px;color:var(--t2);margin-bottom:7px;">مرحباً بك في نظام المختبر</h2>
+      <p style="font-size:12px;">أضف مريضاً أو اختر من القائمة أو افتح لوحة الإحصائيات</p>
+      <div style="display:flex;gap:9px;justify-content:center;margin-top:18px;">
+        <button class="btn btn-a" onclick="showNewPatient()">➕ مريض جديد</button>
+        <button class="btn btn-y" onclick="showStatsView()">📊 الإحصائيات</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PATIENT VIEW -->
+  <div id="patientView" class="view">
+
+    <!-- Print header (screen hidden, print visible) -->
+    <div class="print-header" style="margin-bottom:12px;padding:14px 20px;background:#071220;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+      <div><div style="font-size:20px;font-weight:900;color:#00c8f0;">🔬 MedLab Pro</div><div style="font-size:9px;color:#7aa8cc;">نظام إدارة المختبر الطبي المتكامل</div></div>
+      <div style="text-align:left;font-size:9px;color:#7aa8cc;"><div>تقرير نتائج مختبرية</div><div id="printDate" style="font-weight:700;color:#00c8f0;"></div></div>
+    </div>
+
+    <!-- Patient Info -->
+    <div class="card">
+      <div class="ch">
+        <div class="chi"><div class="chic">👤</div><div><h3>معلومات المريض</h3><p>البيانات الأساسية</p></div></div>
+        <div style="display:flex;gap:7px;" class="no-print">
+          <button class="btn btn-r btn-sm" onclick="clearAll()">🗑️ مسح</button>
+          <button class="btn btn-g btn-sm" onclick="savePatient()">💾 حفظ المريض</button>
+        </div>
+      </div>
+      <div class="cb">
+        <div class="fg">
+          <div class="fl s2"><label>الاسم الكامل</label><input type="text" id="pName" placeholder="أدخل اسم المريض" oninput="updateCurrentPatientName()"></div>
+          <div class="fl"><label>رقم الملف</label><input type="text" id="pId" placeholder="LAB-0001"></div>
+          <div class="fl"><label>العمر</label><input type="number" id="pAge" placeholder="السنة" min="0" max="150" oninput="runAutoCalc()"></div>
+          <div class="fl"><label>الجنس</label>
+            <select id="pGender" onchange="onGenderChange()">
+              <option value="">-- اختر --</option>
+              <option value="M">ذكر</option>
+              <option value="F">أنثى</option>
+            </select>
+          </div>
+          <div class="fl"><label>الطول (سم)</label><input type="number" id="pHeight" placeholder="170" oninput="runAutoCalc()"></div>
+          <div class="fl"><label>الوزن (كغ)</label><input type="number" id="pWeight" placeholder="70" oninput="runAutoCalc()"></div>
+          <div class="fl"><label>تاريخ الطلب</label><input type="date" id="pDate"></div>
+          <div class="fl"><label>الطبيب المحيل</label><input type="text" id="pDoctor" placeholder="اسم الطبيب"></div>
+          <div class="fl"><label>رقم الهاتف</label><input type="tel" id="pPhone" placeholder="05xxxxxxxx"></div>
+          <div class="fl s2"><label>ملاحظات سريرية</label><textarea id="pNotes" placeholder="أي ملاحظات..."></textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mini stats -->
+    <div id="miniStats" class="mini-stats no-print" style="display:none;">
+      <div class="ms gn"><div class="ms-v" id="msN">0</div><div class="ms-l">✅ طبيعي</div></div>
+      <div class="ms rd"><div class="ms-v" id="msH">0</div><div class="ms-l">▲ مرتفع</div></div>
+      <div class="ms bl"><div class="ms-v" id="msL">0</div><div class="ms-l">▼ منخفض</div></div>
+      <div class="ms ac"><div class="ms-v" id="msT">0</div><div class="ms-l">🔬 إجمالي التحاليل</div></div>
+    </div>
+
+    <!-- Calc panel -->
+    <div class="calc-panel no-print" id="calcPanel" style="display:none;">
+      <h4>⚡ نتائج محسوبة — C++ / WebAssembly</h4>
+      <div class="cg" id="calcGrid"></div>
+    </div>
+
+    <!-- Tests section -->
+    <div class="tests-section">
+      <!-- Search bar -->
+      <div class="search-add no-print">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="testSearch"
+            placeholder="ابحث عن تحليل بالاسم العربي أو الإنجليزي أو التصنيف..."
+            oninput="onTestSearch(this.value)"
+            autocomplete="off"
+            onkeydown="onSearchKey(event)">
+          <div id="autocomplete" class="autocomplete" style="display:none;"></div>
+        </div>
+        <button class="btn btn-o btn-sm" onclick="openCustomModal()">➕ تحليل مخصص</button>
+      </div>
+
+      <!-- Empty state -->
+      <div id="emptyTests" class="empty-tests">
+        <div class="ei">🧪</div>
+        <p>ابحث عن التحليل في الأعلى وأضفه<br>
+        <small style="color:var(--t3);font-size:10px;">أو أضف تحليلاً مخصصاً عبر الزر "➕ تحليل مخصص"</small></p>
+      </div>
+
+      <!-- Table -->
+      <div id="testsTableWrap" style="display:none;" class="tests-table-wrap">
+        <table class="tests-table">
+          <thead>
+            <tr>
+              <th style="width:3%;">#</th>
+              <th style="width:22%;">اسم التحليل</th>
+              <th class="tc" style="width:12%;">النتيجة</th>
+              <th class="tc" style="width:11%;">الأدنى</th>
+              <th class="tc" style="width:11%;">الأعلى</th>
+              <th class="tc" style="width:9%;">الحالة</th>
+              <th style="width:10%;">الوحدة</th>
+              <th class="tc" style="width:11%;">السعر (ر.س)</th>
+              <th class="tc no-print" style="width:5%;"></th>
+            </tr>
+          </thead>
+          <tbody id="testsBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Price footer -->
+      <div id="priceFooter" class="price-footer" style="display:none;">
+        <div class="pf-left">
+          <div class="pf-item">
+            <span>عدد التحاليل:</span>
+            <span class="pf-val" id="psCount">0</span>
+          </div>
+          <div class="pf-div no-print"></div>
+          <div class="pf-item no-print">
+            <span>المجموع:</span>
+            <span class="pf-val" id="psSubtotal" style="color:var(--t2);font-size:13px;">0.00</span>
+            <span style="font-size:9px;color:var(--t3);">ر.س</span>
+          </div>
+          <div class="pf-div no-print"></div>
+          <div class="pf-item no-print">
+            <span>خصم:</span>
+            <input type="number" class="pf-disc" id="discountInput" placeholder="0" min="0" step="0.5"
+              oninput="onDiscountChange()">
+            <span style="font-size:9px;color:var(--yellow);">ر.س</span>
+          </div>
+        </div>
+
+        <!-- Editable total -->
+        <div class="total-box" id="totalBox">
+          <span class="total-label">سعر التحاليل الإجمالي:</span>
+          <input type="number" class="total-input" id="totalInput"
+            placeholder="0.00" min="0" step="0.5"
+            oninput="onManualTotal(this.value)"
+            title="يمكنك تعديل الإجمالي يدوياً">
+          <span class="total-sar">ر.س</span>
+          <span class="total-lock-icon no-print" id="lockIcon" style="display:none;" title="الإجمالي يدوي">🔒</span>
+          <button class="total-reset no-print" id="resetTotalBtn" onclick="resetTotal()" style="display:none;" title="إعادة الحساب التلقائي">↩</button>
+        </div>
+        <div style="display:flex;gap:7px;" class="no-print">
+          <button class="btn btn-r btn-sm" onclick="clearAllTests()">🗑️ مسح التحاليل</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /patientView -->
+
+  <!-- STATS VIEW — PROFIT DASHBOARD -->
+  <div id="statsView" class="view">
+
+    <div class="profit-header">
+      <h2>💰 لوحة <span>الأرباح</span></h2>
+      <div style="display:flex;gap:7px;">
+        <button class="btn btn-o btn-sm" onclick="loadProfitStats()">🔄 تحديث</button>
+        <button class="btn btn-o btn-sm" onclick="showView('dashView')">← رجوع</button>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <div class="filter-tabs">
+        <button class="ftab active" id="ft-today"  onclick="setFilter('today')">اليوم</button>
+        <button class="ftab"        id="ft-week"   onclick="setFilter('week')">الأسبوع</button>
+        <button class="ftab"        id="ft-month"  onclick="setFilter('month')">الشهر</button>
+        <button class="ftab"        id="ft-year"   onclick="setFilter('year')">السنة</button>
+        <button class="ftab"        id="ft-custom" onclick="setFilter('custom')">تاريخ محدد</button>
+      </div>
+      <div id="customDates" style="display:none;align-items:center;gap:8px;">
+        <label>من:</label>
+        <input type="date" id="dateFrom" onchange="loadProfitStats()">
+        <label>إلى:</label>
+        <input type="date" id="dateTo"   onchange="loadProfitStats()">
+      </div>
+      <div id="statsLoading" style="display:none;"><div class="spin"></div></div>
+      <span id="statsRangeLabel" style="font-size:10px;color:var(--t3);margin-right:auto;"></span>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi gr">
+        <div class="kpi-icon">💵</div>
+        <div class="kpi-val"><span id="kRevenue">—</span></div>
+        <div class="kpi-label">إجمالي الإيرادات</div>
+        <div class="kpi-sub"><span class="kpi-sar">ر.س</span></div>
+      </div>
+      <div class="kpi ac">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-val" id="kPatients">—</div>
+        <div class="kpi-label">عدد المرضى</div>
+        <div class="kpi-sub" id="kPatientsAvg"></div>
+      </div>
+      <div class="kpi yl">
+        <div class="kpi-icon">🧪</div>
+        <div class="kpi-val" id="kTestCount">—</div>
+        <div class="kpi-label">إجمالي التحاليل</div>
+        <div class="kpi-sub" id="kTestAvg"></div>
+      </div>
+      <div class="kpi bl">
+        <div class="kpi-icon">📋</div>
+        <div class="kpi-val" id="kAvgRevenue">—</div>
+        <div class="kpi-label">متوسط الفاتورة</div>
+        <div class="kpi-sub"><span class="kpi-sar">ر.س</span></div>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="chart-row" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="ch">
+          <div class="chi"><div class="chic">📈</div>
+            <div><h3 id="chartDailyTitle">الإيرادات اليومية</h3><p id="chartDailySub">آخر 30 يوم</p></div>
+          </div>
+        </div>
+        <div class="cb" style="padding:14px;">
+          <div style="position:relative;height:200px;"><canvas id="lineChart"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch">
+          <div class="chi"><div class="chic">📊</div>
+            <div><h3>الإيرادات الشهرية</h3><p>آخر 12 شهر</p></div>
+          </div>
+        </div>
+        <div class="cb" style="padding:14px;">
+          <div style="position:relative;height:200px;"><canvas id="barChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patients revenue table -->
+    <div class="card">
+      <div class="ch">
+        <div class="chi"><div class="chic">🧾</div>
+          <div><h3>فواتير المرضى</h3><p id="tableSubtitle">في الفترة المحددة</p></div>
+        </div>
+        <span id="tableTotal" style="font-size:11px;color:var(--green);font-weight:900;"></span>
+      </div>
+      <div class="cb" style="padding:0;overflow-x:auto;">
+        <div id="revenueTableWrap">
+          <div class="no-data">🔄 جارٍ التحميل...</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+</div>
+
+<!-- Print Modal -->
+<div class="mo" id="printModal">
+  <div class="mbox">
+    <h2>🖨️ طباعة تقرير المريض</h2>
+    <p>سيتم فتح نافذة تقرير احترافية لـ <strong id="printPatientName">المريض</strong>.</p>
+    <div class="mactions">
+      <button class="btn btn-o" onclick="closeMo('printModal')">إلغاء</button>
+      <button class="btn btn-a" onclick="doPrint()">🖨️ فتح التقرير</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Test Modal -->
+<div class="mo" id="customModal">
+  <div class="mbox" style="max-width:500px;">
+    <h2>➕ إضافة تحليل مخصص</h2>
+    <p>أدخل بيانات التحليل يدوياً</p>
+    <div class="cuf">
+      <div class="fl full"><label>اسم التحليل</label><input type="text" id="cu-name" placeholder="مثال: Ferritin / الفيريتين"></div>
+      <div class="fl"><label>النتيجة</label><input type="number" id="cu-val" placeholder="0.0" step="0.01"></div>
+      <div class="fl"><label>الوحدة</label><input type="text" id="cu-unit" placeholder="ng/mL"></div>
+      <div class="fl"><label>الحد الأدنى (المرجع)</label><input type="number" id="cu-low" placeholder="مثال: 20" step="0.01"></div>
+      <div class="fl"><label>الحد الأعلى (المرجع)</label><input type="number" id="cu-high" placeholder="مثال: 250" step="0.01"></div>
+      <div class="fl"><label>السعر (ر.س)</label><input type="number" id="cu-price" placeholder="0" min="0" step="0.5"></div>
+    </div>
+    <div class="mactions">
+      <button class="btn btn-o" onclick="closeMo('customModal')">إلغاء</button>
+      <button class="btn btn-a" onclick="addCustomTest()">➕ إضافة</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  WASM ENGINE
+// ══════════════════════════════════════════
+const WASM_B64="AGFzbQEAAAABNwlgA39/fwF/YAJ9fQF9YAN9fX0Bf2ACf38Bf2ADfX9/AX1gA319fQF9YAF9AX1gAn9/AGAAAX8CGQIDZW52Bm1lbWNweQAAA2VudgRwb3dmAAEDDg0CAwQFBgEFBQYBBwgIBAUBcAEBAQUDAQACBggBfwFBoKgECwe7AQ4GbWVtb3J5AgAHZ2V0RmxhZwACCWNhbGNTdGF0cwADCGNhbGNFR0ZSAAQHY2FsY0xETAAFCGNhbGNWTERMAAYUY2FsY0NvcnJlY3RlZENhbGNpdW0ABwxjYWxjQW5pb25HYXAACA5jYWxjT3Ntb2xhbGl0eQAJCmhiYTFjVG9FQUcACgdjYWxjQk1JAAsLc29ydFJlc3VsdHMADA9nZXRTaGFyZWRCdWZmZXIADQpnZXRTdGF0UHRyAA4KgAsNFABBAkEDQQEgACACXhsgACABXRsLwgYHAn8BfQF/An0CfwN9An8jgICAgABBgAhrIgIkgICAgAACQCABQQFIDQAgAUEBcSEDIAAqAgAhBAJAAkAgAUEBRw0AQQAhBUMAAAAAIQYgBCEHDAELIAFB/v///wdxIQhBACEFQwAAAAAhBiAAIQkgBCEHA0AgCUEEaioCACIKIAkqAgAiCyAHIAsgB14bIgcgCiAHXhshByAKIAsgBCALIARdGyIEIAogBF0bIQQgBiALkiAKkiEGIAlBCGohCSAIIAVBAmoiBUcNAAsLAkAgA0UNACAAIAVBAnRqKgIAIgogByAKIAdeGyEHIAogBCAKIARdGyEEIAYgCpIhBgsgAUEDcSEFIAYgAbKVIQYCQAJAIAFBBE8NAEMAAAAAIQpBACEIDAELIAFB/P///wdxIQNDAAAAACEKQQAhCCAAIQkDQCAJQQxqKgIAIAaTIgsgC5QgCUEIaioCACAGkyILIAuUIAlBBGoqAgAgBpMiCyALlCAJKgIAIAaTIgsgC5QgCpKSkpIhCiAJQRBqIQkgAyAIQQRqIghHDQALCwJAIAVFDQAgACAIQQJ0aiEJA0AgCSoCACAGkyILIAuUIAqSIQogCUEEaiEJIAVBf2oiBQ0ACwtDAAAAACEMAkAgAUEBRiIJDQAgCiABQX9qspWRIQwLIAIgACABQYACIAFBgAJIGyINQQEgDUEBShtBAnQQgICAgAAhAAJAIAkNACANQQIgDUECShshDiAAIQhBAiEDQQEhAQNAIAAgAUECdGoqAgAhCyAIIQkgAyEFAkACQANAIAkqAgAiCiALXkUNASAJQQRqIAo4AgAgCUF8aiEJIAVBf2oiBUEBSg0AC0EAIQkMAQsgBUF/aiEJCyAAIAlBAnRqIAs4AgAgCEEEaiEIIANBAWohAyABQQFqIgEgDkcNAAsLIA1BAXYhCQJAAkAgDUEBcQ0AIAAgCUECdGoiCUF8aioCACAJKgIAkkMAAAA/lCEKDAELIAAgCUECdGoqAgAhCgtBACAKOAKQiICAAEEAIAc4AoyIgIAAQQAgBDgCiIiAgABBACAMOAKEiICAAEEAIAY4AICIgIAACyACQYAIaiSAgICAAEGAiICAAAuDAQIBfQF/QwAADkMhAwJAIABDMzMzP0NmZmY/IAIblSIAQwAAgD9dIgRFDQAgAEO0yHa+Q76fmr4gAhsQgYCAgABDAAAOQ5QhAwsgAEOamZm/EIGAgIAAIQBDN4mBP0MAAIA/IAIbQ61pfj8gAbIQgYCAgABDAACAPyAAIAQbIAOUlJQLEAAgACABkyACQwAAoMCVkgsKACAAQwAAoECVCxMAQwAAgEAgAZNDzcxMP5QgAJILCgAgACABIAKSkwsZACAAIACSIAFDAACQQZWSIAJDMzMzQJWSCxAAIABDmpnlQZRDzcw6wpILEgAgACABQwAAyEKVIgEgAZSVC5QCBQV/AX0EfwF9AX8CQCABQQJIDQAgAEEEaiECIAFBfmohA0EAIQQgAUF/aiIFIQYDQAJAIAQgAWtBfkoNACAAKgIAIQdBACEIAkAgAyAERg0AIAZBfnEhCUEAIQggACEKA0ACQAJAIAcgCkEEaiILKgIAIgxeDQAgDCEHDAELIAogDDgCACALIAc4AgALAkACQCAHIApBCGoiDSoCACIMXg0AIAwhBwwBCyAKQQhqIAc4AgAgCyAMOAIACyANIQogCSAIQQJqIghHDQALCyAGQQFxRQ0AIAcgAiAIQQJ0IgpqIggqAgAiDF5FDQAgCCAHOAIAIAAgCmogDDgCAAsgBkF/aiEGIARBAWoiBCAFRw0ACwsLCABBoIiAgAALCABBgIiAgAALAOEBBG5hbWUAEA9sYWJfZW5naW5lLndhc20BswEPAAZtZW1jcHkBBHBvd2YCB2dldEZsYWcDCWNhbGNTdGF0cwQIY2FsY0VHRlIFB2NhbGNMREwGCGNhbGNWTERMBxRjYWxjQ29ycmVjdGVkQ2FsY2l1bQgMY2FsY0FuaW9uR2FwCQ5jYWxjT3Ntb2xhbGl0eQoKaGJhMWNUb0VBRwsHY2FsY0JNSQwLc29ydFJlc3VsdHMND2dldFNoYXJlZEJ1ZmZlcg4KZ2V0U3RhdFB0cgcSAQAPX19zdGFja19wb2ludGVyADgJcHJvZHVjZXJzAQxwcm9jZXNzZWQtYnkBDFVidW50dSBjbGFuZxExOC4xLjMgKDF1YnVudHUxKQAsD3RhcmdldF9mZWF0dXJlcwIrD211dGFibGUtZ2xvYmFscysIc2lnbi1leHQ=";
+let wasm=null;
+async function initWasm(){
+  try{
+    const bin=Uint8Array.from(atob(WASM_B64),c=>c.charCodeAt(0));
+    const {instance}=await WebAssembly.instantiate(bin,{env:{
+      powf:(x,y)=>Math.pow(x,y),
+      memcpy:(d,s,n)=>{new Uint8Array(instance.exports.memory.buffer).copyWithin(d,s,s+n);return d;}
+    }});
+    wasm=instance; toast('✅ محرك C++ / WASM جاهز');
+  }catch(e){console.error('WASM error:',e);}
+}
+function cpBMI(w,h){return wasm&&w&&h?(+wasm.exports.calcBMI(w,h)).toFixed(1):null;}
+function cpEGFR(cr,age,f){return wasm&&cr&&age?Math.round(wasm.exports.calcEGFR(cr,age,f)):null;}
+function cpLDL(t,h,tg){return wasm&&t&&h&&tg?(+wasm.exports.calcLDL(t,h,tg)).toFixed(0):null;}
+function cpVLDL(tg){return wasm&&tg?(+wasm.exports.calcVLDL(tg)).toFixed(0):null;}
+function cpCorrCa(ca,alb){return wasm&&ca&&alb?(+wasm.exports.calcCorrectedCalcium(ca,alb)).toFixed(1):null;}
+function cpAG(na,cl,h){return wasm&&na&&cl&&h?(+wasm.exports.calcAnionGap(na,cl,h)).toFixed(1):null;}
+function cpOsm(na,g,b){return wasm&&na?(+wasm.exports.calcOsmolality(na,g||0,b||0)).toFixed(0):null;}
+function cpEAG(h){return wasm&&h?(+wasm.exports.hba1cToEAG(h)).toFixed(0):null;}
+
+// ══════════════════════════════════════════
+//  TEST DEFINITIONS
+// ══════════════════════════════════════════
+const ALL_TESTS=[
+  {id:'wbc',  en:'WBC',          ar:'كريات الدم البيضاء',      cat:'صورة الدم',   unit:'10³/μL', refM:[4.5,11],    refF:[4.5,11],    price:15},
+  {id:'rbc',  en:'RBC',          ar:'كريات الدم الحمراء',      cat:'صورة الدم',   unit:'10⁶/μL', refM:[4.7,6.1],   refF:[4.2,5.4],   price:15},
+  {id:'hgb',  en:'Hemoglobin',   ar:'الهيموغلوبين',            cat:'صورة الدم',   unit:'g/dL',   refM:[13.5,17.5], refF:[12,16],     price:15},
+  {id:'hct',  en:'Hematocrit',   ar:'الهيماتوكريت',            cat:'صورة الدم',   unit:'%',      refM:[41,53],     refF:[36,46],     price:15},
+  {id:'mcv',  en:'MCV',          ar:'متوسط حجم الكريات',       cat:'صورة الدم',   unit:'fL',     refM:[80,100],    refF:[80,100],    price:15},
+  {id:'mch',  en:'MCH',          ar:'متوسط هيموغلوبين الكرية', cat:'صورة الدم',   unit:'pg',     refM:[27,33],     refF:[27,33],     price:15},
+  {id:'mchc', en:'MCHC',         ar:'تركيز هيموغلوبين الكرية', cat:'صورة الدم',   unit:'g/dL',   refM:[32,36],     refF:[32,36],     price:15},
+  {id:'plt',  en:'Platelets',    ar:'الصفائح الدموية',         cat:'صورة الدم',   unit:'10³/μL', refM:[150,400],   refF:[150,400],   price:15},
+  {id:'neut', en:'Neutrophils',  ar:'العدلات',                  cat:'صورة الدم',   unit:'%',      refM:[55,70],     refF:[55,70],     price:15},
+  {id:'lymp', en:'Lymphocytes',  ar:'الخلايا اللمفاوية',       cat:'صورة الدم',   unit:'%',      refM:[20,40],     refF:[20,40],     price:15},
+  {id:'mono', en:'Monocytes',    ar:'الخلايا الوحيدة',         cat:'صورة الدم',   unit:'%',      refM:[2,8],       refF:[2,8],       price:15},
+  {id:'eosin',en:'Eosinophils',  ar:'الحمضات',                  cat:'صورة الدم',   unit:'%',      refM:[1,4],       refF:[1,4],       price:15},
+  {id:'baso', en:'Basophils',    ar:'القاعدات',                 cat:'صورة الدم',   unit:'%',      refM:[0,1],       refF:[0,1],       price:15},
+  {id:'esr',  en:'ESR',          ar:'سرعة الترسيب',             cat:'صورة الدم',   unit:'mm/hr',  refM:[0,15],      refF:[0,20],      price:20},
+  {id:'retic',en:'Reticulocytes',ar:'الشبكيات',                 cat:'صورة الدم',   unit:'%',      refM:[0.5,1.5],   refF:[0.5,1.5],   price:20},
+  {id:'glu',  en:'Glucose Fasting',ar:'سكر الدم صيام',         cat:'كيمياء الدم', unit:'mg/dL',  refM:[70,100],    refF:[70,100],    price:20},
+  {id:'glu2h',en:'Glucose 2h PP',ar:'سكر بعد الأكل',           cat:'كيمياء الدم', unit:'mg/dL',  refM:[70,140],    refF:[70,140],    price:20},
+  {id:'hba1c',en:'HbA1c',        ar:'السكر التراكمي',          cat:'كيمياء الدم', unit:'%',      refM:[4,5.7],     refF:[4,5.7],     price:35},
+  {id:'bun',  en:'BUN',          ar:'نيتروجين اليوريا',        cat:'كيمياء الدم', unit:'mg/dL',  refM:[7,20],      refF:[7,20],      price:20},
+  {id:'crea', en:'Creatinine',   ar:'الكرياتينين',              cat:'كيمياء الدم', unit:'mg/dL',  refM:[0.7,1.2],   refF:[0.5,1.0],   price:20},
+  {id:'ua',   en:'Uric Acid',    ar:'حمض اليوريك',              cat:'كيمياء الدم', unit:'mg/dL',  refM:[3.4,7.0],   refF:[2.4,6.0],   price:20},
+  {id:'tp',   en:'Total Protein',ar:'البروتين الكلي',           cat:'كيمياء الدم', unit:'g/dL',   refM:[6.3,8.2],   refF:[6.3,8.2],   price:20},
+  {id:'alb',  en:'Albumin',      ar:'الألبومين',                cat:'كيمياء الدم', unit:'g/dL',   refM:[3.5,5.0],   refF:[3.5,5.0],   price:20},
+  {id:'na',   en:'Sodium Na',    ar:'الصوديوم',                 cat:'كيمياء الدم', unit:'mEq/L',  refM:[136,145],   refF:[136,145],   price:25},
+  {id:'k',    en:'Potassium K',  ar:'البوتاسيوم',               cat:'كيمياء الدم', unit:'mEq/L',  refM:[3.5,5.1],   refF:[3.5,5.1],   price:25},
+  {id:'cl',   en:'Chloride Cl',  ar:'الكلوريد',                 cat:'كيمياء الدم', unit:'mEq/L',  refM:[98,107],    refF:[98,107],    price:25},
+  {id:'co2',  en:'CO2 HCO3',     ar:'البيكربونات',              cat:'كيمياء الدم', unit:'mEq/L',  refM:[22,29],     refF:[22,29],     price:25},
+  {id:'ca',   en:'Calcium Ca',   ar:'الكالسيوم',                cat:'كيمياء الدم', unit:'mg/dL',  refM:[8.5,10.5],  refF:[8.5,10.5],  price:25},
+  {id:'phos', en:'Phosphorus',   ar:'الفوسفور',                 cat:'كيمياء الدم', unit:'mg/dL',  refM:[2.5,4.5],   refF:[2.5,4.5],   price:25},
+  {id:'mg2',  en:'Magnesium Mg', ar:'المغنيسيوم',               cat:'كيمياء الدم', unit:'mg/dL',  refM:[1.7,2.2],   refF:[1.7,2.2],   price:25},
+  {id:'crp',  en:'CRP',          ar:'بروتين C التفاعلي',        cat:'كيمياء الدم', unit:'mg/L',   refM:[0,5],       refF:[0,5],       price:30},
+  {id:'tbil', en:'Total Bilirubin',ar:'البيليروبين الكلي',      cat:'وظائف الكبد', unit:'mg/dL',  refM:[0.2,1.2],   refF:[0.2,1.2],   price:25},
+  {id:'dbil', en:'Direct Bilirubin',ar:'البيليروبين المباشر',   cat:'وظائف الكبد', unit:'mg/dL',  refM:[0,0.3],     refF:[0,0.3],     price:25},
+  {id:'alt',  en:'ALT SGPT',     ar:'ناقلة أمين الألانين',      cat:'وظائف الكبد', unit:'U/L',    refM:[7,56],      refF:[7,45],      price:25},
+  {id:'ast',  en:'AST SGOT',     ar:'ناقلة أمين الأسبارتات',   cat:'وظائف الكبد', unit:'U/L',    refM:[10,40],     refF:[10,40],     price:25},
+  {id:'alp',  en:'ALP',          ar:'الفوسفاتاز القلوية',       cat:'وظائف الكبد', unit:'U/L',    refM:[44,147],    refF:[44,147],    price:25},
+  {id:'ggt',  en:'GGT',          ar:'جاما جلوتاميل',            cat:'وظائف الكبد', unit:'U/L',    refM:[8,61],      refF:[5,36],      price:25},
+  {id:'tcho', en:'Total Cholesterol',ar:'الكولسترول الكلي',     cat:'الدهون',      unit:'mg/dL',  refM:[0,200],     refF:[0,200],     price:25},
+  {id:'trig', en:'Triglycerides',ar:'الثلاثيات الدهنية',        cat:'الدهون',      unit:'mg/dL',  refM:[0,150],     refF:[0,150],     price:25},
+  {id:'hdl',  en:'HDL Cholesterol',ar:'الدهون الجيدة HDL',      cat:'الدهون',      unit:'mg/dL',  refM:[40,60],     refF:[50,60],     price:25},
+  {id:'ldl2', en:'LDL Cholesterol',ar:'الدهون الضارة LDL',      cat:'الدهون',      unit:'mg/dL',  refM:[0,100],     refF:[0,100],     price:25},
+  {id:'tsh',  en:'TSH',          ar:'هرمون تحفيز الدرق',        cat:'الدرقية',     unit:'μIU/mL', refM:[0.4,4.0],   refF:[0.4,4.0],   price:35},
+  {id:'t3t',  en:'T3 Total',     ar:'T3 الكلي',                 cat:'الدرقية',     unit:'ng/dL',  refM:[80,200],    refF:[80,200],    price:35},
+  {id:'t4t',  en:'T4 Total',     ar:'T4 الكلي',                 cat:'الدرقية',     unit:'μg/dL',  refM:[5.1,14.1],  refF:[5.1,14.1],  price:35},
+  {id:'ft3',  en:'Free T3',      ar:'T3 الحر',                  cat:'الدرقية',     unit:'pg/mL',  refM:[2.3,4.2],   refF:[2.3,4.2],   price:35},
+  {id:'ft4',  en:'Free T4',      ar:'T4 الحر',                  cat:'الدرقية',     unit:'ng/dL',  refM:[0.8,1.8],   refF:[0.8,1.8],   price:35},
+  {id:'tpo',  en:'Anti-TPO',     ar:'أضداد بيروكسيداز الدرق',   cat:'الدرقية',     unit:'IU/mL',  refM:[0,35],      refF:[0,35],      price:45},
+  {id:'fsh',  en:'FSH',          ar:'الهرمون المنشط للجريب',    cat:'الهرمونات',   unit:'mIU/mL', refM:[1.5,12.4],  refF:[3.5,12.5],  price:40},
+  {id:'lh',   en:'LH',           ar:'الهرمون اللوتيني',         cat:'الهرمونات',   unit:'mIU/mL', refM:[1.7,8.6],   refF:[2.4,12.6],  price:40},
+  {id:'e2',   en:'Estradiol',    ar:'الإستراديول',              cat:'الهرمونات',   unit:'pg/mL',  refM:[10,40],     refF:[20,350],    price:45},
+  {id:'testo',en:'Testosterone', ar:'التستوستيرون',             cat:'الهرمونات',   unit:'ng/dL',  refM:[300,1000],  refF:[15,70],     price:45},
+  {id:'prl',  en:'Prolactin',    ar:'البرولاكتين',              cat:'الهرمونات',   unit:'ng/mL',  refM:[2,18],      refF:[2,29],      price:40},
+  {id:'cort', en:'Cortisol AM',  ar:'الكورتيزول صباحاً',        cat:'الهرمونات',   unit:'μg/dL',  refM:[6.2,19.4],  refF:[6.2,19.4],  price:45},
+  {id:'ins',  en:'Insulin',      ar:'الأنسولين',                cat:'الهرمونات',   unit:'μIU/mL', refM:[2.6,24.9],  refF:[2.6,24.9],  price:45},
+  {id:'hcg',  en:'β-hCG',        ar:'هرمون الحمل β-hCG',        cat:'الهرمونات',   unit:'mIU/mL', refM:[0,5],       refF:[0,5],       price:40},
+  {id:'pt',   en:'PT',           ar:'زمن البروثرومبين',         cat:'التخثر',      unit:'sec',    refM:[11,13.5],   refF:[11,13.5],   price:30},
+  {id:'ptt',  en:'aPTT',         ar:'زمن الثرومبوبلاستين',     cat:'التخثر',      unit:'sec',    refM:[25,35],     refF:[25,35],     price:30},
+  {id:'inr',  en:'INR',          ar:'النسبة المعيارية الدولية', cat:'التخثر',      unit:'',       refM:[0.8,1.2],   refF:[0.8,1.2],   price:30},
+  {id:'fibr', en:'Fibrinogen',   ar:'الفيبرينوجين',             cat:'التخثر',      unit:'mg/dL',  refM:[200,400],   refF:[200,400],   price:35},
+  {id:'ddi',  en:'D-Dimer',      ar:'D-Dimer',                  cat:'التخثر',      unit:'ng/mL',  refM:[0,500],     refF:[0,500],     price:40},
+  {id:'rf',   en:'Rheumatoid Factor',ar:'عامل الروماتيزم',      cat:'أخرى',        unit:'IU/mL',  refM:[0,14],      refF:[0,14],      price:35},
+  {id:'psa',  en:'PSA Total',    ar:'مستضد البروستاتا',         cat:'أخرى',        unit:'ng/mL',  refM:[0,4.0],     refF:null,        price:50},
+  {id:'cea',  en:'CEA',          ar:'المستضد الجنيني السرطاني', cat:'أخرى',        unit:'ng/mL',  refM:[0,5.0],     refF:[0,5.0],     price:55},
+  {id:'ca125',en:'CA-125',       ar:'CA-125',                    cat:'أخرى',        unit:'U/mL',   refM:[0,35],      refF:[0,35],      price:60},
+  {id:'vitd', en:'Vitamin D',    ar:'فيتامين د 25-OH',          cat:'أخرى',        unit:'ng/mL',  refM:[30,100],    refF:[30,100],    price:50},
+  {id:'b12',  en:'Vitamin B12',  ar:'فيتامين ب12',              cat:'أخرى',        unit:'pg/mL',  refM:[200,900],   refF:[200,900],   price:45},
+  {id:'folate',en:'Folate',      ar:'حمض الفوليك',              cat:'أخرى',        unit:'ng/mL',  refM:[3,17],      refF:[3,17],      price:45},
+  {id:'iron', en:'Iron Serum',   ar:'الحديد في الدم',           cat:'أخرى',        unit:'μg/dL',  refM:[65,175],    refF:[50,170],    price:25},
+  {id:'ferr', en:'Ferritin',     ar:'الفيريتين',                cat:'أخرى',        unit:'ng/mL',  refM:[20,250],    refF:[10,120],    price:40},
+  {id:'tibc', en:'TIBC',         ar:'الطاقة الكلية لربط الحديد',cat:'أخرى',        unit:'μg/dL',  refM:[250,370],   refF:[250,370],   price:35},
+  {id:'amyl', en:'Amylase',      ar:'الأميليز',                 cat:'أخرى',        unit:'U/L',    refM:[25,125],    refF:[25,125],    price:30},
+  {id:'lipase',en:'Lipase',      ar:'الليباز',                  cat:'أخرى',        unit:'U/L',    refM:[0,50],      refF:[0,50],      price:30},
+  {id:'ck',   en:'CK CPK',       ar:'كيناز الكرياتين',          cat:'أخرى',        unit:'U/L',    refM:[30,200],    refF:[29,168],    price:30},
+  {id:'trop', en:'Troponin I',   ar:'التروبونين I',              cat:'أخرى',        unit:'ng/mL',  refM:[0,0.04],    refF:[0,0.04],    price:60},
+  {id:'uph',  en:'Urine pH',     ar:'حموضة البول',              cat:'تحليل البول', unit:'',       refM:[4.5,8.0],   refF:[4.5,8.0],   price:20},
+  {id:'usg',  en:'Urine Specific Gravity',ar:'الكثافة النوعية', cat:'تحليل البول', unit:'',       refM:[1.005,1.03],refF:[1.005,1.03],price:20},
+  {id:'uwbc', en:'WBC/HPF',      ar:'كريات بيضاء /HPF',        cat:'تحليل البول', unit:'/HPF',   refM:[0,5],       refF:[0,5],       price:20},
+  {id:'urbc', en:'RBC/HPF',      ar:'كريات حمراء /HPF',        cat:'تحليل البول', unit:'/HPF',   refM:[0,2],       refF:[0,2],       price:20},
+  {id:'uprot2',en:'Urine Protein',ar:'بروتين البول',            cat:'تحليل البول', unit:'mg/dL',  refM:[0,14],      refF:[0,14],      price:20},
+  {id:'ugluc2',en:'Urine Glucose',ar:'سكر البول',               cat:'تحليل البول', unit:'mg/dL',  refM:[0,15],      refF:[0,15],      price:20},
+];
+
+// ══════════════════════════════════════════
+//  INDEXEDDB  v2 — date index for fast queries
+// ══════════════════════════════════════════
+const DB_NAME='MedLabProDB', DB_VER=2, STORE='patients';
+let db=null;
+function initDB(){
+  return new Promise((res,rej)=>{
+    const req=indexedDB.open(DB_NAME,DB_VER);
+    req.onupgradeneeded=e=>{
+      const d=e.target.result;
+      let store;
+      if(!d.objectStoreNames.contains(STORE)){
+        store=d.createObjectStore(STORE,{keyPath:'dbKey',autoIncrement:true});
+      } else {
+        store=e.target.transaction.objectStore(STORE);
+      }
+      // Add date index if missing (v2 migration)
+      if(!store.indexNames.contains('date'))
+        store.createIndex('date','date',{unique:false});
+      if(!store.indexNames.contains('savedAt'))
+        store.createIndex('savedAt','savedAt',{unique:false});
+    };
+    req.onsuccess=e=>{
+      db=e.target.result;
+      const b=document.getElementById('dbBadge');
+      b.innerHTML='<div class="dot" style="background:var(--green)"></div>IndexedDB نشط';
+      b.className='badge bg';
+      res(db);
+    };
+    req.onerror=e=>rej(e.target.error);
+  });
+}
+const dbGetAll=()=>new Promise((r,j)=>{const q=db.transaction(STORE,'readonly').objectStore(STORE).getAll();q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error);});
+const dbGet=k=>new Promise((r,j)=>{const q=db.transaction(STORE,'readonly').objectStore(STORE).get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error);});
+const dbPut=p=>new Promise((r,j)=>{const q=db.transaction(STORE,'readwrite').objectStore(STORE).put(p);q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error);});
+const dbDel=k=>new Promise((r,j)=>{const q=db.transaction(STORE,'readwrite').objectStore(STORE).delete(k);q.onsuccess=()=>r();q.onerror=()=>j(q.error);});
+
+// ⚡ FAST: query by date range using the index — no full scan
+// Only loads records within [from,to], not ALL patients
+function dbGetByDateRange(from, to){
+  return new Promise((r,j)=>{
+    const tx=db.transaction(STORE,'readonly');
+    const idx=tx.objectStore(STORE).index('date');
+    const range=IDBKeyRange.bound(from, to);
+    const req=idx.getAll(range);
+    req.onsuccess=()=>r(req.result);
+    req.onerror=()=>j(req.error);
+  });
+}
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let patientCache=[], currentPatient=null, listOffset=0, searchQuery='';
+const PAGE_SIZE=20;
+let autoSaveTimer=null;
+let addedTests=[];   // {rowId,testId,en,ar,val,refLo,refHi,unit,price,custom}
+let rowCounter=0;
+let manualTotalOverride=false;
+let chartLine=null, chartBar=null;
+let acFocusIdx=-1;
+// Profit dashboard state
+let activeFilter='today';  // today|week|month|year|custom
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+window.onload=async()=>{
+  if(window.Chart){
+    Chart.defaults.color='#7aa8cc';
+    Chart.defaults.borderColor='#1a3355';
+    Chart.defaults.font.family="'Cairo',sans-serif";
+  }
+  document.getElementById('pDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('pId').value='LAB-'+String(Date.now()).slice(-5);
+  document.getElementById('printDate').textContent=
+    new Date().toLocaleDateString('ar-SA',{year:'numeric',month:'long',day:'numeric'});
+
+  try{
+    await initDB();
+    const all=await dbGetAll();
+    patientCache=all
+      .map(p=>({dbKey:p.dbKey,name:p.name,id:p.id,age:p.age,gender:p.gender,date:p.date,savedAt:p.savedAt||0}))
+      .sort((a,b)=>b.savedAt-a.savedAt);
+    renderPatientList();
+  }catch(e){ console.error(e); toast('❌ خطأ في قاعدة البيانات'); }
+
+  await initWasm();
+
+  // FIX: outside click closes autocomplete only if click is truly outside
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('#testSearch') && !e.target.closest('#autocomplete')){
+      hideAC();
+    }
+  });
+};
+
+// ══════════════════════════════════════════
+//  AUTOCOMPLETE
+// ══════════════════════════════════════════
+let acResults=[];
+
+function onTestSearch(q){
+  acFocusIdx=-1;
+  const ac=document.getElementById('autocomplete');
+  if(!q.trim()){ hideAC(); return; }
+  const lq=q.toLowerCase();
+  acResults=ALL_TESTS.filter(t=>{
+    const already=addedTests.some(r=>r.testId===t.id);
+    return !already &&(
+      t.en.toLowerCase().includes(lq)||
+      t.ar.includes(q)||
+      t.cat.includes(q)
+    );
+  }).slice(0,12);
+
+  if(!acResults.length){
+    ac.innerHTML='<div class="no-results">لا توجد نتائج — جرّب "➕ تحليل مخصص"</div>';
+    ac.style.display='block'; return;
+  }
+  renderAC();
+}
+
+function renderAC(){
+  const ac=document.getElementById('autocomplete');
+  ac.innerHTML=acResults.map((t,i)=>`
+    <div class="ac-item" id="ac_${i}" tabindex="-1"
+      onmousedown="addTestFromSearch('${t.id}')"
+      onkeydown="if(event.key==='Enter'){addTestFromSearch('${t.id}');}">
+      <div>
+        <div class="ac-name">${t.en}</div>
+        <div class="ac-ar">${t.ar}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="ac-cat">${t.cat}</span>
+        <span style="font-size:9px;color:var(--yellow);font-weight:700;">${t.price} ر.س</span>
+        <span class="ac-add">+ إضافة</span>
+      </div>
+    </div>`).join('');
+  ac.style.display='block';
+}
+
+function hideAC(){
+  document.getElementById('autocomplete').style.display='none';
+  acFocusIdx=-1;
+}
+
+// FIX: keyboard navigation in autocomplete
+function onSearchKey(e){
+  const ac=document.getElementById('autocomplete');
+  if(ac.style.display==='none') return;
+  const items=ac.querySelectorAll('.ac-item');
+  if(!items.length) return;
+  if(e.key==='ArrowDown'){
+    e.preventDefault();
+    acFocusIdx=Math.min(acFocusIdx+1, items.length-1);
+    items[acFocusIdx].focus();
+  } else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    acFocusIdx=Math.max(acFocusIdx-1,-1);
+    if(acFocusIdx>=0) items[acFocusIdx].focus();
+    else document.getElementById('testSearch').focus();
+  } else if(e.key==='Escape'){
+    hideAC();
+  }
+}
+
+function addTestFromSearch(testId){
+  const t=ALL_TESTS.find(x=>x.id===testId);
+  if(!t) return;
+  const gender=document.getElementById('pGender').value||'M';
+  const ref=(gender==='F' && t.refF) ? t.refF : t.refM;
+  // Store refLo/refHi as numbers (or empty string if ref is null)
+  addTestRow({
+    testId:t.id, en:t.en, ar:t.ar, val:'',
+    refLo: ref ? ref[0] : '',
+    refHi: ref ? ref[1] : '',
+    unit:t.unit, price:t.price, custom:false
+  });
+  document.getElementById('testSearch').value='';
+  hideAC();
+  document.getElementById('testSearch').focus();
+}
+
+// ══════════════════════════════════════════
+//  CUSTOM TEST MODAL
+// ══════════════════════════════════════════
+function openCustomModal(){ document.getElementById('customModal').classList.add('open'); }
+function addCustomTest(){
+  const name=document.getElementById('cu-name').value.trim();
+  if(!name){ toast('⚠️ أدخل اسم التحليل'); return; }
+  const loStr=document.getElementById('cu-low').value;
+  const hiStr=document.getElementById('cu-high').value;
+  addTestRow({
+    testId:'custom_'+Date.now(), en:name, ar:'', val:document.getElementById('cu-val').value,
+    // FIX: store empty string if field empty, not 0
+    refLo: loStr==='' ? '' : parseFloat(loStr),
+    refHi: hiStr==='' ? '' : parseFloat(hiStr),
+    unit:document.getElementById('cu-unit').value,
+    price:parseFloat(document.getElementById('cu-price').value)||0,
+    custom:true
+  });
+  ['cu-name','cu-val','cu-unit','cu-low','cu-high','cu-price'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  closeMo('customModal');
+}
+
+// ══════════════════════════════════════════
+//  ADD / REMOVE ROWS
+// ══════════════════════════════════════════
+function addTestRow(opts){
+  const rid=++rowCounter;
+  addedTests.push({rowId:rid, ...opts});
+  renderTestsTable();
+  // Flash new row
+  requestAnimationFrame(()=>{
+    const tr=document.getElementById('tr_'+rid);
+    if(tr){
+      tr.style.background='rgba(0,200,240,.1)';
+      setTimeout(()=>{ tr.style.background=''; }, 700);
+    }
+  });
+  // FIX: auto-save only if patient already saved
+  scheduleAutoSave();
+}
+
+function removeTestRow(rid){
+  addedTests=addedTests.filter(t=>t.rowId!==rid);
+  renderTestsTable();
+  runAutoCalc();
+  scheduleAutoSave();
+}
+
+function clearAllTests(){
+  if(addedTests.length && !confirm('مسح جميع التحاليل المضافة؟')) return;
+  addedTests=[]; rowCounter=0; manualTotalOverride=false;
+  renderTestsTable(); runAutoCalc();
+}
+
+// ══════════════════════════════════════════
+//  RENDER TABLE
+// ══════════════════════════════════════════
+function renderTestsTable(){
+  const wrap=document.getElementById('testsTableWrap');
+  const empty=document.getElementById('emptyTests');
+  const footer=document.getElementById('priceFooter');
+
+  if(!addedTests.length){
+    wrap.style.display='none';
+    empty.style.display='block';
+    footer.style.display='none';
+    updateMiniStats();
+    return;
+  }
+  empty.style.display='none';
+  wrap.style.display='block';
+  footer.style.display='flex';
+
+  document.getElementById('testsBody').innerHTML=addedTests.map((t,i)=>{
+    const {fc,vc}=evalFlag(t);
+    const loVal = t.refLo==='' ? '' : t.refLo;
+    const hiVal = t.refHi==='' ? '' : t.refHi;
+    return `<tr id="tr_${t.rowId}" style="transition:background .5s;">
+      <td style="color:var(--t3);font-size:10px;font-weight:700;text-align:center;">${i+1}</td>
+      <td>
+        <div class="trn">${escHtml(t.en)}</div>
+        ${t.ar?`<div class="trar">${escHtml(t.ar)}</div>`:''}
+      </td>
+      <td style="text-align:center;">
+        <input type="number" class="ti wv ${vc}" id="val_${t.rowId}"
+          value="${escAttr(t.val)}" placeholder="—" step="0.01"
+          oninput="onValChange(${t.rowId},this.value)">
+      </td>
+      <td style="text-align:center;">
+        <input type="number" class="ti wr" id="lo_${t.rowId}"
+          value="${escAttr(loVal)}" placeholder="—" step="0.01"
+          oninput="onRefChange(${t.rowId})">
+      </td>
+      <td style="text-align:center;">
+        <input type="number" class="ti wr" id="hi_${t.rowId}"
+          value="${escAttr(hiVal)}" placeholder="—" step="0.01"
+          oninput="onRefChange(${t.rowId})">
+      </td>
+      <td style="text-align:center;">
+        <span class="flag ${fc}" id="fl_${t.rowId}">${flagLabel(fc)}</span>
+      </td>
+      <td>
+        <input type="text" class="ti wu" id="unit_${t.rowId}"
+          value="${escAttr(t.unit)}" placeholder="وحدة"
+          oninput="onUnitChange(${t.rowId},this.value)">
+      </td>
+      <td style="text-align:center;">
+        <input type="number" class="ti wp" id="price_${t.rowId}"
+          value="${t.price||''}" placeholder="0" min="0" step="0.5"
+          oninput="onPriceChange(${t.rowId},this.value)">
+      </td>
+      <td style="text-align:center;" class="no-print">
+        <button class="del-btn" onclick="removeTestRow(${t.rowId})" title="حذف هذا التحليل">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  updatePriceSummary();
+  updateMiniStats();
+}
+
+// ── helpers ──
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s){ return String(s||'').replace(/"/g,'&quot;'); }
+function flagLabel(fc){ return fc==='fh'?'▲ مرتفع':fc==='fl2'?'▼ منخفض':fc==='fn'?'✓ طبيعي':'—'; }
+
+// FIX: evalFlag — handles empty refLo/refHi correctly
+function evalFlag(t){
+  const v=parseFloat(t.val);
+  if(isNaN(v) || String(t.val).trim()==='') return {fc:'fe',vc:''};
+  const lo=parseFloat(t.refLo);
+  const hi=parseFloat(t.refHi);
+  // Only flag if BOTH bounds are valid numbers
+  if(!isNaN(lo) && !isNaN(hi) && String(t.refLo)!=='' && String(t.refHi)!==''){
+    if(v<lo) return {fc:'fl2',vc:'l'};
+    if(v>hi) return {fc:'fh',vc:'h'};
+    return {fc:'fn',vc:'n'};
+  }
+  return {fc:'fe',vc:''};
+}
+
+// ── inline change handlers ──
+function onValChange(rid,val){
+  const t=addedTests.find(x=>x.rowId===rid); if(!t) return;
+  t.val=val;
+  const {fc,vc}=evalFlag(t);
+  const inp=document.getElementById('val_'+rid);
+  if(inp) inp.className=`ti wv${vc?' '+vc:''}`;
+  const fl=document.getElementById('fl_'+rid);
+  if(fl){ fl.className='flag '+fc; fl.textContent=flagLabel(fc); }
+  updateMiniStats(); runAutoCalc(); scheduleAutoSave();
+}
+
+// FIX: preserve empty string, not coerce to 0
+function onRefChange(rid){
+  const loEl=document.getElementById('lo_'+rid);
+  const hiEl=document.getElementById('hi_'+rid);
+  const t=addedTests.find(x=>x.rowId===rid); if(!t) return;
+  t.refLo = (loEl&&loEl.value!=='') ? parseFloat(loEl.value) : '';
+  t.refHi = (hiEl&&hiEl.value!=='') ? parseFloat(hiEl.value) : '';
+  const {fc,vc}=evalFlag(t);
+  const inp=document.getElementById('val_'+rid);
+  if(inp) inp.className=`ti wv${vc?' '+vc:''}`;
+  const fl=document.getElementById('fl_'+rid);
+  if(fl){ fl.className='flag '+fc; fl.textContent=flagLabel(fc); }
+  updateMiniStats(); scheduleAutoSave();
+}
+
+function onUnitChange(rid,val){ const t=addedTests.find(x=>x.rowId===rid); if(t) t.unit=val; scheduleAutoSave(); }
+function onPriceChange(rid,val){
+  const t=addedTests.find(x=>x.rowId===rid); if(!t) return;
+  t.price=parseFloat(val)||0;
+  // If total was not manually overridden, recalculate
+  if(!manualTotalOverride) updatePriceSummary();
+  else updateSubtotalDisplay();
+  scheduleAutoSave();
+}
+
+// FIX: Gender change updates both ref ranges in state AND re-renders table
+function onGenderChange(){
+  const gender=document.getElementById('pGender').value||'M';
+  addedTests.forEach(t=>{
+    if(t.custom) return; // don't override custom test refs
+    const def=ALL_TESTS.find(x=>x.id===t.testId);
+    if(!def) return;
+    const ref=(gender==='F' && def.refF) ? def.refF : def.refM;
+    if(ref){ t.refLo=ref[0]; t.refHi=ref[1]; }
+  });
+  renderTestsTable(); // re-renders with updated ref values
+  runAutoCalc();
+}
+
+// ══════════════════════════════════════════
+//  PRICE SUMMARY  ← editable total
+// ══════════════════════════════════════════
+function calcSubtotal(){
+  return addedTests.reduce((s,t)=>s+(parseFloat(t.price)||0),0);
+}
+
+function updateSubtotalDisplay(){
+  const sub=calcSubtotal();
+  const disc=parseFloat(document.getElementById('discountInput')?.value)||0;
+  const psub=document.getElementById('psSubtotal');
+  if(psub) psub.textContent=sub.toFixed(2);
+  document.getElementById('psCount').textContent=addedTests.length;
+  return {sub, disc};
+}
+
+function updatePriceSummary(){
+  const {sub,disc}=updateSubtotalDisplay();
+  if(!manualTotalOverride){
+    const total=Math.max(0, sub-disc);
+    const ti=document.getElementById('totalInput');
+    if(ti) ti.value=total.toFixed(2);
+    document.getElementById('totalBox').classList.remove('locked');
+    document.getElementById('lockIcon').style.display='none';
+    document.getElementById('resetTotalBtn').style.display='none';
+  }
+}
+
+function onDiscountChange(){
+  if(!manualTotalOverride) updatePriceSummary();
+  else updateSubtotalDisplay();
+  scheduleAutoSave();
+}
+
+// FIX: Manual total override
+function onManualTotal(val){
+  manualTotalOverride = true;
+  document.getElementById('totalBox').classList.add('locked');
+  document.getElementById('lockIcon').style.display='inline';
+  document.getElementById('resetTotalBtn').style.display='inline';
+  updateSubtotalDisplay();
+  scheduleAutoSave();
+}
+
+function resetTotal(){
+  manualTotalOverride=false;
+  updatePriceSummary();
+  document.getElementById('totalBox').classList.remove('locked');
+  document.getElementById('lockIcon').style.display='none';
+  document.getElementById('resetTotalBtn').style.display='none';
+  toast('↩ تم إعادة حساب الإجمالي تلقائياً');
+}
+
+function getDisplayTotal(){
+  const ti=document.getElementById('totalInput');
+  return parseFloat(ti?.value)||0;
+}
+
+// ══════════════════════════════════════════
+//  MINI STATS
+// ══════════════════════════════════════════
+function updateMiniStats(){
+  let n=0,h=0,l=0;
+  addedTests.forEach(t=>{
+    const {fc}=evalFlag(t);
+    if(fc==='fn') n++;
+    else if(fc==='fh') h++;
+    else if(fc==='fl2') l++;
+  });
+  const ms=document.getElementById('miniStats');
+  const total=addedTests.length;
+  if(total>0){
+    document.getElementById('msN').textContent=n;
+    document.getElementById('msH').textContent=h;
+    document.getElementById('msL').textContent=l;
+    document.getElementById('msT').textContent=total;
+    ms.style.display='flex';
+  } else {
+    ms.style.display='none';
+  }
+}
+
+// ══════════════════════════════════════════
+//  AUTO-CALCULATIONS (WASM)
+// ══════════════════════════════════════════
+function getV(id){
+  const t=addedTests.find(x=>x.testId===id);
+  return t ? parseFloat(t.val)||0 : 0;
+}
+
+function runAutoCalc(){
+  if(!wasm) return;
+  const age=parseInt(document.getElementById('pAge').value)||0;
+  const gender=document.getElementById('pGender').value;
+  const isFemale=gender==='F'?1:0;
+  const w=parseFloat(document.getElementById('pWeight').value)||0;
+  const h=parseFloat(document.getElementById('pHeight').value)||0;
+  const calcs=[];
+
+  if(w&&h){
+    const b=cpBMI(w,h);
+    if(b){
+      const cat=b<18.5?'نحيف':b<25?'طبيعي':b<30?'زيادة وزن':'سمنة';
+      calcs.push({label:'مؤشر كتلة الجسم (BMI)',val:b,unit:cat,
+        color:b>=18.5&&b<25?'var(--green)':b<18.5?'var(--blue)':'var(--red)'});
+    }
+  }
+  const cr=getV('crea');
+  if(cr&&age){
+    const e=cpEGFR(cr,age,isFemale);
+    if(e!=null){
+      const ckd=e>=90?'G1':e>=60?'G2':e>=45?'G3a':e>=30?'G3b':e>=15?'G4':'G5';
+      calcs.push({label:'eGFR (CKD-EPI 2021)',val:e,unit:'mL/min – '+ckd,
+        color:e>=60?'var(--green)':e>=30?'var(--yellow)':'var(--red)'});
+    }
+  }
+  const tc=getV('tcho'),hdl=getV('hdl'),tg=getV('trig');
+  if(tc&&hdl&&tg){
+    const l=cpLDL(tc,hdl,tg), vl=cpVLDL(tg);
+    if(l) calcs.push({label:'LDL (فريدوالد)',val:l,unit:'mg/dL',
+      color:l<100?'var(--green)':l<130?'var(--yellow)':'var(--red)'});
+    if(vl) calcs.push({label:'VLDL (محسوب)',val:vl,unit:'mg/dL',color:'var(--accent)'});
+  }
+  const ca=getV('ca'),alb=getV('alb');
+  if(ca&&alb){const cc=cpCorrCa(ca,alb);if(cc)calcs.push({label:'الكالسيوم المُصحَّح',val:cc,unit:'mg/dL',color:'var(--accent)'});}
+  const na=getV('na'),cl=getV('cl'),hco3=getV('co2');
+  if(na&&cl&&hco3){const ag=cpAG(na,cl,hco3);if(ag)calcs.push({label:'الفجوة الأنيونية',val:ag,unit:'mEq/L',color:ag>=8&&ag<=12?'var(--green)':'var(--yellow)'});}
+  if(na){const os=cpOsm(na,getV('glu'),getV('bun'));if(os)calcs.push({label:'الأسمولالية المحسوبة',val:os,unit:'mOsm/kg',color:os>=275&&os<=295?'var(--green)':'var(--yellow)'});}
+  const hb=getV('hba1c');
+  if(hb){const eag=cpEAG(hb);if(eag)calcs.push({label:'متوسط السكر (eAG)',val:eag,unit:'mg/dL',color:'var(--accent)'});}
+
+  const panel=document.getElementById('calcPanel'), grid=document.getElementById('calcGrid');
+  if(!calcs.length){ panel.style.display='none'; return; }
+  panel.style.display='block';
+  grid.innerHTML=calcs.map(c=>
+    `<div class="ci">
+      <div class="cil">${c.label}</div>
+      <div class="civ" style="color:${c.color}">${c.val}</div>
+      <div class="ciu">${c.unit}</div>
+    </div>`
+  ).join('');
+}
+
+// ══════════════════════════════════════════
+//  PATIENT MANAGEMENT
+// ══════════════════════════════════════════
+function getFormData(){
+  return {
+    id:    document.getElementById('pId').value,
+    name:  document.getElementById('pName').value.trim(),
+    age:   document.getElementById('pAge').value,
+    gender:document.getElementById('pGender').value,
+    height:document.getElementById('pHeight').value,
+    weight:document.getElementById('pWeight').value,
+    phone: document.getElementById('pPhone').value,
+    date:  document.getElementById('pDate').value,
+    doctor:document.getElementById('pDoctor').value,
+    notes: document.getElementById('pNotes').value,
+    tests: JSON.parse(JSON.stringify(addedTests)), // deep copy
+    discount: parseFloat(document.getElementById('discountInput')?.value)||0,
+    manualTotal: manualTotalOverride ? getDisplayTotal() : null,
+    savedAt: Date.now(),
+    ...(currentPatient?.dbKey ? {dbKey:currentPatient.dbKey} : {})
+  };
+}
+
+function clearFormInputs(){
+  ['pName','pId','pAge','pHeight','pWeight','pPhone','pDoctor','pNotes']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('pGender').value='';
+  const disc=document.getElementById('discountInput');
+  if(disc) disc.value='';
+  const ti=document.getElementById('totalInput');
+  if(ti) ti.value='';
+  addedTests=[]; rowCounter=0; manualTotalOverride=false;
+  renderTestsTable();
+  document.getElementById('calcPanel').style.display='none';
+  document.getElementById('miniStats').style.display='none';
+}
+
+function showNewPatient(){
+  currentPatient=null;
+  clearFormInputs();
+  showView('patientView');
+  document.getElementById('pDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('pId').value='LAB-'+String(Date.now()).slice(-5);
+  renderPatientList();
+}
+
+function clearAll(){
+  if(!confirm('مسح جميع بيانات هذا المريض من الشاشة؟')) return;
+  clearFormInputs();
+  toast('تم المسح');
+}
+
+async function savePatient(){
+  const data=getFormData();
+  if(!data.name){ toast('⚠️ أدخل اسم المريض أولاً'); return; }
+  try{
+    const key=await dbPut(data);
+    data.dbKey=key;
+    currentPatient=data;
+    // Update cache
+    const light={dbKey:key,name:data.name,id:data.id,age:data.age,gender:data.gender,date:data.date,savedAt:data.savedAt};
+    const idx=patientCache.findIndex(p=>p.dbKey===key);
+    if(idx===-1) patientCache.unshift(light);
+    else patientCache[idx]=light;
+    renderPatientList();
+    toast('✅ تم الحفظ');
+  }catch(e){ console.error(e); toast('❌ خطأ في الحفظ'); }
+}
+
+// FIX: auto-save — only if patient is already saved (has dbKey)
+function scheduleAutoSave(){
+  if(!currentPatient?.dbKey) return;
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer=setTimeout(async()=>{
+    const data=getFormData();
+    try{ await dbPut(data); currentPatient=data; }
+    catch(e){ console.error('Auto-save error:',e); }
+  }, 800);
+}
+
+async function loadPatient(dbKey){
+  try{
+    const p=await dbGet(dbKey);
+    if(!p) return;
+    currentPatient=p;
+    clearFormInputs();
+
+    // Fill patient fields
+    const map={pName:'name',pId:'id',pAge:'age',pGender:'gender',pHeight:'height',
+               pWeight:'weight',pPhone:'phone',pDate:'date',pDoctor:'doctor',pNotes:'notes'};
+    Object.entries(map).forEach(([elId,field])=>{
+      const el=document.getElementById(elId);
+      if(el) el.value=p[field]||'';
+    });
+
+    // Restore discount
+    const disc=document.getElementById('discountInput');
+    if(disc) disc.value=p.discount||'';
+
+    // FIX: restore tests with correct rowCounter
+    addedTests=[];
+    if(p.tests && p.tests.length){
+      p.tests.forEach(t=>{ addedTests.push({...t}); });
+      // FIX: set rowCounter to max rowId to avoid ID collisions
+      rowCounter=Math.max(...addedTests.map(t=>t.rowId));
+    } else {
+      rowCounter=0;
+    }
+
+    // FIX: restore manual total override
+    manualTotalOverride=false;
+    if(p.manualTotal!=null){
+      manualTotalOverride=true;
+      const ti=document.getElementById('totalInput');
+      if(ti) ti.value=p.manualTotal.toFixed(2);
+      document.getElementById('totalBox').classList.add('locked');
+      document.getElementById('lockIcon').style.display='inline';
+      document.getElementById('resetTotalBtn').style.display='inline';
+    }
+
+    renderTestsTable();
+    if(!p.manualTotal) updatePriceSummary();
+    showView('patientView');
+    renderPatientList();
+    runAutoCalc();
+  }catch(e){
+    console.error(e);
+    toast('❌ خطأ في تحميل بيانات المريض');
+  }
+}
+
+async function deletePatient(dbKey,e){
+  e.stopPropagation();
+  if(!confirm('حذف سجل هذا المريض نهائياً؟')) return;
+  try{
+    await dbDel(dbKey);
+    patientCache=patientCache.filter(p=>p.dbKey!==dbKey);
+    if(currentPatient?.dbKey===dbKey){
+      currentPatient=null; showView('dashView');
+    }
+    renderPatientList();
+    toast('🗑️ تم الحذف');
+  }catch(e){ toast('❌ خطأ في الحذف'); }
+}
+
+function updateCurrentPatientName(){
+  if(!currentPatient?.dbKey) return;
+  const name=document.getElementById('pName').value;
+  currentPatient.name=name;
+  const idx=patientCache.findIndex(p=>p.dbKey===currentPatient.dbKey);
+  if(idx!==-1) patientCache[idx].name=name;
+  renderPatientList();
+}
+
+// ══════════════════════════════════════════
+//  SIDEBAR SEARCH & PAGINATION
+// ══════════════════════════════════════════
+function onSearch(q){ searchQuery=q.trim(); listOffset=0; renderPatientList(); }
+function getFiltered(){
+  if(!searchQuery) return patientCache;
+  const q=searchQuery.toLowerCase();
+  return patientCache.filter(p=>
+    (p.name||'').toLowerCase().includes(q)||
+    (p.id||'').toLowerCase().includes(q)
+  );
+}
+function changePage(dir){
+  const f=getFiltered();
+  const maxOff=Math.max(0,(Math.ceil(f.length/PAGE_SIZE)-1)*PAGE_SIZE);
+  listOffset=Math.max(0,Math.min(listOffset+dir*PAGE_SIZE,maxOff));
+  renderPatientList();
+}
+
+function renderPatientList(){
+  const filtered=getFiltered();
+  const page=filtered.slice(listOffset,listOffset+PAGE_SIZE);
+  const list=document.getElementById('patientList');
+  const cntEl=document.getElementById('patientCount');
+  if(cntEl) cntEl.textContent=searchQuery
+    ?`نتائج البحث: ${filtered.length} من ${patientCache.length}`
+    :`إجمالي: ${patientCache.length} مريض`;
+
+  if(!patientCache.length){ list.innerHTML='<div class="nop">لا يوجد مرضى<br>أضف مريضاً جديداً</div>'; return; }
+  if(!filtered.length){ list.innerHTML='<div class="nop">لا توجد نتائج للبحث</div>'; return; }
+
+  let html=page.map(p=>`
+    <div class="pcard ${currentPatient?.dbKey===p.dbKey?'active':''}" onclick="loadPatient(${p.dbKey})">
+      <div class="pb">${escHtml(p.id||'LAB')}</div>
+      <div class="pn">${escHtml(p.name||'بدون اسم')}</div>
+      <div class="pm">${p.gender==='M'?'♂':p.gender==='F'?'♀':''} ${p.age?p.age+' سنة':''} ${p.date?'| '+p.date:''}</div>
+      <div style="margin-top:7px;display:flex;justify-content:flex-end;">
+        <button class="btn btn-r btn-sm" onclick="deletePatient(${p.dbKey},event)">حذف</button>
+      </div>
+    </div>`).join('');
+
+  if(filtered.length>PAGE_SIZE){
+    const cur=Math.floor(listOffset/PAGE_SIZE)+1;
+    const tot=Math.ceil(filtered.length/PAGE_SIZE);
+    html+=`<div class="pgn">
+      <button class="btn btn-o btn-sm" onclick="changePage(-1)" ${listOffset===0?'style="opacity:.3;pointer-events:none"':''}>◀</button>
+      <span class="pi">${cur}/${tot}</span>
+      <button class="btn btn-o btn-sm" onclick="changePage(1)" ${listOffset+PAGE_SIZE>=filtered.length?'style="opacity:.3;pointer-events:none"':''}>▶</button>
+    </div>`;
+  }
+  list.innerHTML=html;
+}
+
+// ══════════════════════════════════════════
+//  VIEW SWITCHING
+// ══════════════════════════════════════════
+function showView(id){
+  ['dashView','patientView','statsView'].forEach(v=>{
+    document.getElementById(v)?.classList.remove('active');
+  });
+  document.getElementById(id)?.classList.add('active');
+}
+
+// ══════════════════════════════════════════
+//  PROFIT DASHBOARD
+// ══════════════════════════════════════════
+
+// Helper: get patient revenue
+function getRevenue(p){
+  if(p.manualTotal!=null && p.manualTotal>0) return p.manualTotal;
+  const sub=(p.tests||[]).reduce((s,t)=>s+(parseFloat(t.price)||0),0);
+  return Math.max(0, sub-(p.discount||0));
+}
+
+// Helper: get patient date string YYYY-MM-DD
+function getPatientDate(p){
+  if(p.date && /^\d{4}-\d{2}-\d{2}/.test(p.date)) return p.date;
+  if(p.savedAt) return new Date(p.savedAt).toISOString().split('T')[0];
+  return null;
+}
+
+// Get date range for current filter
+function getDateRange(){
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const today=fmt(now);
+
+  if(activeFilter==='today') return {from:today, to:today, label:'اليوم: '+today};
+
+  if(activeFilter==='week'){
+    const d=new Date(now); d.setDate(d.getDate()-6);
+    return {from:fmt(d), to:today, label:'آخر 7 أيام'};
+  }
+
+  if(activeFilter==='month'){
+    const from=`${now.getFullYear()}-${pad(now.getMonth()+1)}-01`;
+    return {from, to:today, label:now.toLocaleDateString('ar-SA',{month:'long',year:'numeric'})};
+  }
+
+  if(activeFilter==='year'){
+    return {from:`${now.getFullYear()}-01-01`, to:`${now.getFullYear()}-12-31`,
+      label:'سنة '+now.getFullYear()};
+  }
+
+  // custom
+  const from=document.getElementById('dateFrom')?.value;
+  const to=document.getElementById('dateTo')?.value;
+  if(!from||!to) return null;
+  return {from, to, label:`${from} — ${to}`};
+}
+
+function setFilter(f){
+  activeFilter=f;
+  // Update tab styles
+  ['today','week','month','year','custom'].forEach(k=>{
+    document.getElementById('ft-'+k)?.classList.toggle('active', k===f);
+  });
+  // Show/hide custom date inputs
+  document.getElementById('customDates').style.display = f==='custom'?'flex':'none';
+  if(f!=='custom') loadProfitStats();
+}
+
+async function showStatsView(){
+  showView('statsView');
+  // Set default custom dates
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const today=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  const fromEl=document.getElementById('dateFrom');
+  const toEl=document.getElementById('dateTo');
+  if(fromEl&&!fromEl.value) fromEl.value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-01`;
+  if(toEl&&!toEl.value)     toEl.value=today;
+  await loadProfitStats();
+}
+
+async function loadProfitStats(){
+  const range=getDateRange();
+  if(!range){ toast('⚠️ اختر نطاق التاريخ'); return; }
+
+  // Show loading
+  document.getElementById('statsLoading').style.display='block';
+  document.getElementById('statsRangeLabel').textContent=range.label;
+
+  try{
+    // ⚡ FAST QUERY — uses date index, loads only the needed period
+    const records=await dbGetByDateRange(range.from, range.to);
+
+    // ── KPIs ──
+    const totalRevenue=records.reduce((s,p)=>s+getRevenue(p),0);
+    const patientCount=records.length;
+    const testCount=records.reduce((s,p)=>s+(p.tests?.length||0),0);
+    const avgRev=patientCount?totalRevenue/patientCount:0;
+
+    document.getElementById('kRevenue').textContent=totalRevenue.toFixed(2);
+    document.getElementById('kPatients').textContent=patientCount;
+    document.getElementById('kTestCount').textContent=testCount;
+    document.getElementById('kAvgRevenue').textContent=avgRev.toFixed(2);
+    document.getElementById('kPatientsAvg').textContent=
+      patientCount?`متوسط ${avgRev.toFixed(0)} ر.س/مريض`:'';
+    document.getElementById('kTestAvg').textContent=
+      patientCount?`${(testCount/patientCount).toFixed(1)} تحليل/مريض`:'';
+
+    // ── Daily chart (line) ──
+    await renderDailyChart(range);
+
+    // ── Monthly chart (bar) — always shows last 12 months ──
+    await renderMonthlyChart();
+
+    // ── Revenue table ──
+    renderRevenueTable(records, range);
+
+  }catch(e){
+    console.error(e); toast('❌ خطأ في تحميل بيانات الأرباح');
+  }finally{
+    document.getElementById('statsLoading').style.display='none';
+  }
+}
+
+async function renderDailyChart(range){
+  // Build day-by-day map within range
+  const from=new Date(range.from), to=new Date(range.to);
+  const days=[], labels=[], revenues=[];
+  const cur=new Date(from);
+  while(cur<=to){
+    const k=cur.toISOString().split('T')[0];
+    days.push(k);
+    labels.push(cur.toLocaleDateString('ar-SA',{month:'short',day:'numeric'}));
+    revenues.push(0);
+    cur.setDate(cur.getDate()+1);
+  }
+
+  // For the selected range, fetch and distribute by day
+  const records=await dbGetByDateRange(range.from, range.to);
+  records.forEach(p=>{
+    const d=getPatientDate(p); if(!d) return;
+    const idx=days.indexOf(d);
+    if(idx!==-1) revenues[idx]+=getRevenue(p);
+  });
+
+  // If range is too wide (>60 days), group by week
+  const isTooWide=days.length>60;
+  let finalLabels=labels, finalData=revenues;
+  if(isTooWide){
+    // Group by week (every 7 days)
+    finalLabels=[]; finalData=[];
+    for(let i=0;i<days.length;i+=7){
+      finalLabels.push(labels[i]);
+      finalData.push(revenues.slice(i,i+7).reduce((a,b)=>a+b,0));
+    }
+  }
+
+  const subtitle=days.length===1?'اليوم':isTooWide?'أسبوعياً':`${days.length} يوم`;
+  document.getElementById('chartDailySub').textContent=subtitle;
+
+  const ctx=document.getElementById('lineChart').getContext('2d');
+  if(chartLine) chartLine.destroy();
+  chartLine=new Chart(ctx,{
+    type:'line',
+    data:{labels:finalLabels, datasets:[{
+      label:'إيرادات (ر.س)', data:finalData,
+      borderColor:'#00e17a', backgroundColor:'rgba(0,225,122,.08)',
+      fill:true, tension:0.4, pointBackgroundColor:'#00e17a', pointRadius:3,
+      pointHoverRadius:5
+    }]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{
+        label:c=>`  ${c.parsed.y.toFixed(2)} ر.س`
+      }}},
+      scales:{
+        x:{grid:{color:'#1a3355'}, ticks:{color:'#3d6a8a',font:{size:8},maxRotation:45}},
+        y:{grid:{color:'#1a3355'}, ticks:{color:'#3d6a8a',
+          callback:v=>`${v} ر.س`}, beginAtZero:true}
+      }
+    }
+  });
+}
+
+async function renderMonthlyChart(){
+  // Always show last 12 months — use month-level queries
+  const months=[], labels=[], revenues=[];
+  const now=new Date();
+  for(let i=11;i>=0;i--){
+    const d=new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const pad=n=>String(n).padStart(2,'0');
+    const from=`${d.getFullYear()}-${pad(d.getMonth()+1)}-01`;
+    const last=new Date(d.getFullYear(),d.getMonth()+1,0);
+    const to=`${last.getFullYear()}-${pad(last.getMonth()+1)}-${pad(last.getDate())}`;
+    months.push({from,to});
+    labels.push(d.toLocaleDateString('ar-SA',{month:'short',year:'2-digit'}));
+    revenues.push(0);
+  }
+
+  // ⚡ One query per month — each uses date index (fast)
+  await Promise.all(months.map(async(m,i)=>{
+    const recs=await dbGetByDateRange(m.from, m.to);
+    revenues[i]=recs.reduce((s,p)=>s+getRevenue(p),0);
+  }));
+
+  const ctx=document.getElementById('barChart').getContext('2d');
+  if(chartBar) chartBar.destroy();
+  const maxRev=Math.max(...revenues);
+  chartBar=new Chart(ctx,{
+    type:'bar',
+    data:{labels, datasets:[{
+      data:revenues,
+      backgroundColor:revenues.map(v=>
+        v===maxRev && v>0 ? '#00e17a' : 'rgba(0,200,240,.5)'
+      ),
+      borderRadius:5, borderSkipped:false
+    }]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{
+        label:c=>`  ${c.parsed.y.toFixed(2)} ر.س`
+      }}},
+      scales:{
+        x:{grid:{display:false}, ticks:{color:'#3d6a8a',font:{size:8}}},
+        y:{grid:{color:'#1a3355'}, ticks:{color:'#3d6a8a',
+          callback:v=>`${v} ر.س`}, beginAtZero:true}
+      }
+    }
+  });
+}
+
+function renderRevenueTable(records, range){
+  const wrap=document.getElementById('revenueTableWrap');
+  const totalEl=document.getElementById('tableTotal');
+  const subEl=document.getElementById('tableSubtitle');
+  subEl.textContent=`${range.label} — ${records.length} مريض`;
+
+  if(!records.length){
+    wrap.innerHTML='<div class="no-data">📭 لا توجد سجلات في هذه الفترة</div>';
+    totalEl.textContent='';
+    return;
+  }
+
+  // Sort by revenue descending
+  const sorted=[...records].sort((a,b)=>getRevenue(b)-getRevenue(a));
+  const grandTotal=sorted.reduce((s,p)=>s+getRevenue(p),0);
+  totalEl.textContent=`الإجمالي: ${grandTotal.toFixed(2)} ر.س`;
+
+  wrap.innerHTML=`<table class="rev-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>المريض</th>
+        <th style="text-align:center">التاريخ</th>
+        <th style="text-align:center">التحاليل</th>
+        <th style="text-align:center">الخصم</th>
+        <th style="text-align:center">الإجمالي (ر.س)</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${sorted.map((p,i)=>{
+        const rev=getRevenue(p);
+        const sub=(p.tests||[]).reduce((s,t)=>s+(parseFloat(t.price)||0),0);
+        const disc=p.discount||0;
+        const isManual=p.manualTotal!=null&&p.manualTotal>0;
+        const d=getPatientDate(p)||'—';
+        return `<tr>
+          <td style="color:var(--t3);font-size:10px;text-align:center;">${i+1}</td>
+          <td>
+            <div class="pname">${escHtml(p.name||'بدون اسم')}</div>
+            <div class="pdate">${escHtml(p.id||'')} ${isManual?'<span style="color:var(--yellow);font-size:8px;">🔒 يدوي</span>':''}</div>
+          </td>
+          <td class="count">${d}</td>
+          <td class="count">${(p.tests||[]).length}</td>
+          <td class="count" style="color:var(--yellow);">${disc>0?disc.toFixed(2):'—'}</td>
+          <td class="amount">${rev.toFixed(2)}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+    <tfoot>
+      <tr style="background:var(--s3);">
+        <td colspan="5" style="padding:8px 12px;font-weight:700;font-size:11px;color:var(--t2);">المجموع الكلي للفترة</td>
+        <td style="padding:8px 12px;font-weight:900;font-size:14px;color:var(--green);text-align:center;">${grandTotal.toFixed(2)}</td>
+      </tr>
+    </tfoot>
+  </table>`;
+}
+
+// ══════════════════════════════════════════
+//  PRINT
+// ══════════════════════════════════════════
+function openPrintModal(){
+  if(!currentPatient && !document.getElementById('pName').value){
+    toast('⚠️ اختر مريضاً أو أدخل بياناته أولاً'); return;
+  }
+  const name=(currentPatient?.name)||document.getElementById('pName').value||'المريض';
+  document.getElementById('printPatientName').textContent=name;
+  document.getElementById('printModal').classList.add('open');
+}
+function closeMo(id){ document.getElementById(id).classList.remove('open'); }
+
+function doPrint(){
+  closeMo('printModal');
+  // FIX: always use current live form data, not stale currentPatient
+  const p=getFormData();
+  const subtotal=calcSubtotal();
+  const disc=parseFloat(document.getElementById('discountInput')?.value)||0;
+  const total=manualTotalOverride ? getDisplayTotal() : Math.max(0,subtotal-disc);
+
+  const rows=(p.tests||[]).map((t,i)=>{
+    const {fc}=evalFlag(t);
+    const lo=String(t.refLo)!==''?t.refLo:'—';
+    const hi=String(t.refHi)!==''?t.refHi:'—';
+    let stLabel='—', sc='';
+    if(fc==='fn'){stLabel='✓ طبيعي';sc='no';}
+    else if(fc==='fh'){stLabel='▲ مرتفع';sc='hi';}
+    else if(fc==='fl2'){stLabel='▼ منخفض';sc='lo';}
+    return `<tr class="${i%2===0?'ev':''}">
+      <td class="num">${i+1}</td>
+      <td><strong>${t.en}</strong>${t.ar?`<br><small>${t.ar}</small>`:''}</td>
+      <td class="tv ${sc}">${t.val||'—'}</td>
+      <td class="ref">${lo} – ${hi}</td>
+      <td class="unit">${t.unit||''}</td>
+      <td class="ts ${sc}">${stLabel}</td>
+      <td class="pr">${t.price||0}</td>
+    </tr>`;
+  }).join('');
+
+  // WASM calcs for print
+  const pAge=parseInt(p.age)||0, isFem=p.gender==='F'?1:0;
+  const pw=parseFloat(p.weight)||0, ph=parseFloat(p.height)||0;
+  const cParts=[];
+  if(pw&&ph){const b=cpBMI(pw,ph);if(b)cParts.push(`<div class="ci"><div class="cn">مؤشر كتلة الجسم</div><div class="cv">${b}</div><div class="cu">${b<18.5?'نحيف':b<25?'طبيعي':b<30?'زيادة وزن':'سمنة'}</div></div>`);}
+  const cr=(p.tests||[]).find(t=>t.testId==='crea');
+  if(cr&&pAge){const e=cpEGFR(parseFloat(cr.val),pAge,isFem);if(e)cParts.push(`<div class="ci"><div class="cn">eGFR (CKD-EPI)</div><div class="cv">${e}</div><div class="cu">mL/min</div></div>`);}
+  const tc2=(p.tests||[]).find(t=>t.testId==='tcho');
+  const hdl2=(p.tests||[]).find(t=>t.testId==='hdl');
+  const tg2=(p.tests||[]).find(t=>t.testId==='trig');
+  if(tc2&&hdl2&&tg2){
+    const l=cpLDL(+tc2.val,+hdl2.val,+tg2.val);
+    const vl=cpVLDL(+tg2.val);
+    if(l)cParts.push(`<div class="ci"><div class="cn">LDL (فريدوالد)</div><div class="cv">${l}</div><div class="cu">mg/dL</div></div>`);
+    if(vl)cParts.push(`<div class="ci"><div class="cn">VLDL</div><div class="cv">${vl}</div><div class="cu">mg/dL</div></div>`);
+  }
+  const hb2=(p.tests||[]).find(t=>t.testId==='hba1c');
+  if(hb2){const eag=cpEAG(+hb2.val);if(eag)cParts.push(`<div class="ci"><div class="cn">متوسط السكر eAG</div><div class="cv">${eag}</div><div class="cu">mg/dL</div></div>`);}
+  const calcSec=cParts.length?`<div class="csec"><h4>⚡ النتائج المحسوبة (C++ WASM)</h4><div class="cg">${cParts.join('')}</div></div>`:'';
+
+  const html=`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
+<title>تقرير ${p.name||'مريض'}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Cairo',sans-serif;background:#fff;color:#0d1a2d;font-size:10px;direction:rtl;}
+.hdr{background:#07111f;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;}
+.hn{font-size:19px;font-weight:900;color:#00c8f0;}.hs{font-size:9px;color:#7aa8cc;margin-top:2px;}
+.hr{text-align:left;font-size:9px;color:#7aa8cc;}.hrid{font-size:12px;font-weight:900;color:#00c8f0;margin-top:2px;}
+.pb{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 18px;background:#f0f6fc;border:1px solid #c8dde8;border-radius:7px;padding:10px;}
+.pf label{font-size:8px;color:#4a7a9b;font-weight:700;letter-spacing:.3px;display:block;margin-bottom:1px;}
+.pf span{font-size:11px;font-weight:700;color:#0a2040;}
+.pf.big{grid-column:span 2;}.pf.big span{font-size:13px;}
+section{margin:0 18px 10px;}
+h4{font-size:11px;color:#0a2040;font-weight:900;margin-bottom:7px;padding-right:4px;border-right:3px solid #00c8f0;}
+table{width:100%;border-collapse:collapse;border:1px solid #d0e0f0;}
+th{background:#e4eff9;padding:5px 8px;text-align:right;font-size:8px;font-weight:700;color:#2d5a80;border-bottom:1.5px solid #c0d8e8;}
+td{padding:4px 8px;border-bottom:1px solid #eef3fa;}
+tr.ev td{background:#f8fbfe;}
+.num{color:#8baec8;font-size:9px;text-align:center;width:22px;}
+.tv{font-weight:900;font-size:12px;text-align:center;}
+.ref{font-size:9px;color:#4a7a9b;text-align:center;}
+.unit{font-size:9px;color:#4a7a9b;}
+.ts{font-size:9px;font-weight:700;text-align:center;}
+.pr{text-align:center;font-weight:700;color:#0a4080;}
+.tv.hi,.ts.hi{color:#c0392b;}.tv.lo,.ts.lo{color:#1a6acc;}.tv.no,.ts.no{color:#16a34a;}
+.csec{margin:0 18px 10px;background:#edf5fc;border:1px solid #b8d8ee;border-radius:6px;padding:10px;}
+.csec h4{border-right-color:#00c8f0;}
+.cg{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;}
+.ci{background:#fff;border:1px solid #d0e0f0;border-radius:5px;padding:6px;}
+.cn{font-size:7px;color:#4a7a9b;font-weight:700;}
+.cv{font-size:15px;font-weight:900;color:#0050a0;margin:2px 0;}
+.cu{font-size:7px;color:#7a9ab0;}
+.psec{margin:0 18px 10px;background:#f0fff4;border:1px solid #bbf0cc;border-radius:7px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;}
+.ptot{font-size:22px;font-weight:900;color:#16a34a;}
+.psub{font-size:10px;color:#2d6040;margin-top:3px;}
+.sig{display:flex;justify-content:space-between;padding:0 18px;margin-top:10px;gap:18px;}
+.sigb{border-top:1px solid #ccd8e8;padding-top:5px;flex:1;text-align:center;font-size:9px;color:#4a7a9b;}
+.ftr{background:#07111f;color:#3d6a8a;padding:5px 18px;display:flex;justify-content:space-between;font-size:8px;margin-top:8px;}
+@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}@page{margin:8mm;}}
+</style></head><body>
+<div class="hdr">
+  <div><div class="hn">🔬 MedLab Pro</div><div class="hs">نظام إدارة المختبر الطبي المتكامل</div></div>
+  <div class="hr"><div>تقرير نتائج مختبرية</div><div>${new Date().toLocaleDateString('ar-SA',{year:'numeric',month:'long',day:'numeric'})}</div><div class="hrid">${p.id||'—'}</div></div>
+</div>
+<div class="pb">
+  <div class="pf big"><label>اسم المريض</label><span>${p.name||'—'}</span></div>
+  <div class="pf"><label>العمر</label><span>${p.age?p.age+' سنة':'—'}</span></div>
+  <div class="pf"><label>الجنس</label><span>${p.gender==='M'?'♂ ذكر':p.gender==='F'?'♀ أنثى':'—'}</span></div>
+  <div class="pf"><label>التاريخ</label><span>${p.date||'—'}</span></div>
+  <div class="pf"><label>الطبيب</label><span>${p.doctor||'—'}</span></div>
+  <div class="pf"><label>الهاتف</label><span>${p.phone||'—'}</span></div>
+</div>
+<section>
+<h4>🔬 نتائج التحاليل</h4>
+<table>
+  <thead><tr><th>#</th><th>التحليل</th><th style="text-align:center">النتيجة</th><th style="text-align:center">القيم المرجعية</th><th>الوحدة</th><th style="text-align:center">الحالة</th><th style="text-align:center">السعر (ر.س)</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+</section>
+${calcSec}
+<div class="psec">
+  <div>
+    <h4 style="border-right-color:#22c55e;">💰 سعر التحاليل الإجمالي</h4>
+    <div class="psub">
+      عدد التحاليل: ${(p.tests||[]).length}
+      &nbsp;|&nbsp; مجموع الأسعار: ${subtotal.toFixed(2)} ر.س
+      ${disc?` &nbsp;|&nbsp; خصم: ${disc.toFixed(2)} ر.س`:''}
+      ${manualTotalOverride?' &nbsp;|&nbsp; <em>(سعر يدوي)</em>':''}
+    </div>
+  </div>
+  <div class="ptot">${total.toFixed(2)} ر.س</div>
+</div>
+${p.notes?`<section style="margin-bottom:10px;"><div style="background:#fffbea;border:1px solid #ffe082;border-radius:6px;padding:8px 12px;"><strong>📋 ملاحظات سريرية:</strong> ${p.notes}</div></section>`:''}
+<div class="sig">
+  <div class="sigb">أخصائي المختبر</div>
+  <div class="sigb">الطبيب المراجع</div>
+  <div class="sigb">الختم الرسمي</div>
+</div>
+<div class="ftr">
+  <span>MedLab Pro — تقرير آلي | C++ WASM Engine</span>
+  <span>طُبع: ${new Date().toLocaleString('ar-SA')}</span>
+</div>
+<script>window.onload=()=>setTimeout(()=>window.print(),500);<\/script>
+</body></html>`;
+
+  const w=window.open('','_blank','width=920,height=800');
+  if(!w){ toast('❌ السماح بالنوافذ المنبثقة في المتصفح'); return; }
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  toast('✅ تم فتح نافذة التقرير');
+}
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
